@@ -6,11 +6,13 @@ class LoginResponse {
   final String token;
   final int idEmpresa;
   final String unidadNegocio;
+  final String colorBase;
 
   LoginResponse({
     required this.token,
     required this.idEmpresa,
     required this.unidadNegocio,
+    required this.colorBase
   });
 
   factory LoginResponse.fromJson(Map<String, dynamic> json) {
@@ -18,6 +20,7 @@ class LoginResponse {
       token: json['token'],
       idEmpresa: json['idEmpresa'],
       unidadNegocio: json['unidadNegocio'],
+      colorBase: json['colorBase'],
     );
   }
 }

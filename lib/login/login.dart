@@ -7,7 +7,7 @@ import '../Dashboard/dashboard.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginForm extends StatefulWidget {
-  const LoginForm({Key? key}) : super(key: key);
+  const LoginForm({super.key});
   @override
   _LoginFormState createState() => _LoginFormState();
 }
@@ -25,15 +25,20 @@ class _LoginFormState extends State<LoginForm> {
       final response = await LoginRest.login(username, password);
 
       // Obtiene los datos de la respuesta
-      String token = response.token;
       int idEmpresa = response.idEmpresa;
       String unidadNegocio = response.unidadNegocio;
 
+      //Diseño
+      String colorBase = response.colorBase;
+
+
       // Guarda los datos en SharedPreferences
       final prefs = await SharedPreferences.getInstance();
-      prefs.setString('token', token);
+      // prefs.setString('token', token);
       prefs.setInt('idEmpresa', idEmpresa);
       prefs.setString('unidadNegocio', unidadNegocio);
+      prefs.setString('colorBase', colorBase);
+
 
       // Navega a la pantalla de Dashboard
       Navigator.pushReplacement(
@@ -85,7 +90,7 @@ class _LoginFormState extends State<LoginForm> {
                 return null;
               },
             ),
-            SizedBox(height: 28),
+            const SizedBox(height: 28),
             CustomTextField(
               controller: _passwordController,
               labelText: 'Contraseña',
@@ -97,11 +102,11 @@ class _LoginFormState extends State<LoginForm> {
                 return null;
               },
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: _login,
               style: CustomStyles.buttonStyle,
-              child: Text(
+              child: const Text(
                 'INGRESAR',
                 style: TextStyle(color: Colors.black),
               ),

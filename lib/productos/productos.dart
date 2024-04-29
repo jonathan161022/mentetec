@@ -110,6 +110,9 @@ class _ProductosState extends State<Productos> with TickerProviderStateMixin {
 
         productos.add(producto);
         nombresImagenes.add(producto.nombreImagen);
+        if (kDebugMode) {
+          print("Img1"+ nombresImagenes.toString());
+        }
       }
 
       setState(() {
@@ -283,6 +286,9 @@ class _ProductosState extends State<Productos> with TickerProviderStateMixin {
   }
 
   Widget _buildProductItem(Producto producto) {
+    ImageProvider imagenPredeterminada =
+        const AssetImage('assets/imagen_predeterminada.jpg');
+
     return ListTile(
       title: Text(producto.nombre),
       subtitle: Column(
@@ -294,7 +300,7 @@ class _ProductosState extends State<Productos> with TickerProviderStateMixin {
       ),
       leading: producto.imagen != null
           ? Image(image: producto.imagen!)
-          : const CircularProgressIndicator(),
+          : Image(image: imagenPredeterminada),
       trailing: Checkbox(
         shape: const CircleBorder(),
         value: producto.isChecked,
