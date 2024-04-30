@@ -164,6 +164,19 @@ class _ProductosState extends State<Productos> with TickerProviderStateMixin {
     return productosSeleccionados;
   }
 
+  Future<void> _mostrarDialogo(BuildContext context) async {
+    List<Producto> productosSeleccionados =
+        obtenerProductosSeleccionados(listaProductos);
+
+    showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return DialogoCrearProforma(
+            productosSeleccionados: productosSeleccionados);
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -180,17 +193,18 @@ class _ProductosState extends State<Productos> with TickerProviderStateMixin {
           }, onSelected: (value) async {
             if (value == 'Realizar Pedido') {
               // Obtener la lista de productos seleccionados
-              List<Producto> productosSeleccionados =
-                  obtenerProductosSeleccionados(listaProductos);
-              // Navegar a la pantalla CrearProformaScreen y pasar la lista de productos seleccionados
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  // Pasa la lista de productos seleccionados como parámetro al constructor de CrearProformaScreen
-                  builder: (context) => CrearProforma(
-                      productosSeleccionados: productosSeleccionados),
-                ),
-              );
+              // List<Producto> productosSeleccionados =
+              //     obtenerProductosSeleccionados(listaProductos);
+              // // Navegar a la pantalla CrearProformaScreen y pasar la lista de productos seleccionados
+              // Navigator.push(
+              //   context,
+              //   MaterialPageRoute(
+              //     // Pasa la lista de productos seleccionados como parámetro al constructor de CrearProformaScreen
+              //     builder: (context) => CrearProforma(
+              //         productosSeleccionados: productosSeleccionados),
+              //   ),
+              // );
+              _mostrarDialogo(context);
             }
           }),
         ],
@@ -278,8 +292,10 @@ class _ProductosState extends State<Productos> with TickerProviderStateMixin {
     final pageProductos = listaProductos.sublist(startIndex,
         endIndex < listaProductos.length ? endIndex : listaProductos.length);
 
-    return ListView.builder(
+    return ListView.separated(
       itemCount: pageProductos.length,
+      separatorBuilder: (BuildContext context, int index) =>
+          const Divider(), // Separador entre elementos
       itemBuilder: (context, index) {
         return _buildProductItem(pageProductos[index]);
       },
@@ -290,36 +306,62 @@ class _ProductosState extends State<Productos> with TickerProviderStateMixin {
     ImageProvider imagenPredeterminada =
         const AssetImage('assets/imagen_predeterminada.jpg');
 
-    return ListTile(
-      title: Text(producto.nombre),
-      subtitle: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(producto.descripcion),
-          Text('Precio de venta: \$${producto.precioVenta.toStringAsFixed(2)}'),
-        ],
+    Color backgroundColor = Colors.grey;
+
+    // Obtener el color de fondo
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(10),
+      child: ListTile(
+        title: Text(producto.nombre),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(producto.descripcion),
+            Text(
+                'Precio de venta: \$${producto.precioVenta.toStringAsFixed(2)}'),
+          ],
+        ),
+        leading: producto.imagen != null
+            ? Image(image: producto.imagen!)
+            : Image(image: imagenPredeterminada),
+        trailing: Checkbox(
+          shape: const CircleBorder(),
+          value: producto.isChecked,
+          onChanged: (bool? value) {
+            setState(() {
+              producto.isChecked = value ?? false;
+              if (producto.isChecked) {
+                // Agregar el producto a la lista de productos seleccionados
+                productosSeleccionados.add(producto);
+              } else {
+                // Eliminar el producto de la lista de productos seleccionados
+                productosSeleccionados.remove(producto);
+              }
+              if (kDebugMode) {
+                print(productosSeleccionados.toString());
+              }
+            });
+          },
+        ),
       ),
-      leading: producto.imagen != null
-          ? Image(image: producto.imagen!)
-          : Image(image: imagenPredeterminada),
-      trailing: Checkbox(
-        shape: const CircleBorder(),
-        value: producto.isChecked,
-        onChanged: (bool? value) {
-          setState(() {
-            producto.isChecked = value ?? false;
-            if (producto.isChecked) {
-              // Agregar el producto a la lista de productos seleccionados
-              productosSeleccionados.add(producto);
-            } else {
-              // Eliminar el producto de la lista de productos seleccionados
-              productosSeleccionados.remove(producto);
-            }
-            if (kDebugMode) {
-              print(productosSeleccionados.toString());
-            }
-          });
-        },
+    );
+  }
+}
+
+class DialogoCrearProforma extends StatelessWidget {
+  final List<Producto> productosSeleccionados;
+
+  DialogoCrearProforma({required this.productosSeleccionados});
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      insetPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 30),
+      child: SizedBox(
+        height: MediaQuery.of(context).size.height, // Tamaño de la pantalla
+        width: MediaQuery.of(context).size.width, // Tamaño de la pantalla
+        child: CrearProforma(productosSeleccionados: productosSeleccionados),
       ),
     );
   }

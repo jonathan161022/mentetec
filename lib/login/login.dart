@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
+import '../custom/customPasswordField.dart';
 import '../custom/custom_text_field.dart';
 import 'package:flutter/material.dart';
 import 'styles.dart';
@@ -17,6 +18,7 @@ class LoginForm extends StatefulWidget {
 class _LoginFormState extends State<LoginForm> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  String? password;
 
   void _login() async {
     String username = _usernameController.text;
@@ -30,10 +32,6 @@ class _LoginFormState extends State<LoginForm> {
       String token = response.token;
       int idEmpresa = response.idEmpresa;
       String unidadNegocio = response.unidadNegocio;
-
-      // Acceder a la instancia de AuthToken a través de Provider
-      AuthToken authToken = Provider.of<AuthToken>(context, listen: false);
-      authToken.token = token;
 
       //Diseño
       String colorBase = response.colorBase;
@@ -98,15 +96,24 @@ class _LoginFormState extends State<LoginForm> {
               },
             ),
             const SizedBox(height: 28),
-            CustomTextField(
+            // CustomTextField(
+            //   controller: _passwordController,
+            //   labelText: 'Contraseña',
+            //   obscureText: true,
+            //   validator: (value) {
+            //     if (value == null || value.isEmpty) {
+            //       return 'Ingrese su contraseña';
+            //     }
+            //     return null;
+            //   },
+            // ),
+            PasswordField(
               controller: _passwordController,
-              labelText: 'Contraseña',
-              obscureText: true,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Ingrese su contraseña';
-                }
-                return null;
+              labelText: 'Password',
+              onFieldSubmitted: (String value) {
+                setState(() {
+                  password = value;
+                });
               },
             ),
             const SizedBox(height: 20),

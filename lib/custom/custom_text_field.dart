@@ -1,29 +1,38 @@
 import 'package:flutter/material.dart';
 
-class CustomTextField extends StatelessWidget {
+class CustomTextField extends StatefulWidget {
   final TextEditingController controller;
   final String labelText;
   final bool obscureText;
-  final FormFieldValidator<String>? validator; // Cambiado a tipo FormFieldValidator
+  final FormFieldValidator<String>? validator;
 
   const CustomTextField({
-    Key? key,
+    super.key,
     required this.controller,
     required this.labelText,
     this.obscureText = false,
-    this.validator, // Agregado el parámetro validator
-  }) : super(key: key);
+    this.validator,
+  });
 
+  @override
+  _CustomTextFieldState createState() => _CustomTextFieldState();
+}
+
+class _CustomTextFieldState extends State<CustomTextField> {
   @override
   Widget build(BuildContext context) {
     return TextFormField(
-      controller: controller,
-      obscureText: obscureText,
+      controller: widget.controller,
+      obscureText: widget.obscureText,
       decoration: InputDecoration(
-        labelText: labelText,
-        border: OutlineInputBorder(),
+        labelText: widget.labelText,
+        border: const OutlineInputBorder(),
+        errorText: widget.controller.text.isEmpty ? 'Ingrese ${widget.labelText}' : null,
       ),
-      validator: validator, // Usando el validator proporcionado
+      onChanged: (String val) {
+        setState(() {}); // No es necesario realizar cambios aquí para el errorText
+      },
+      validator: widget.validator,
     );
   }
 }

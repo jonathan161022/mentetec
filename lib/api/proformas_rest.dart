@@ -1,18 +1,25 @@
+import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'configuracion.dart';
 
-Future<http.Response> crearProforma(String token) async {
+//Método api para obtener productos
+Future<http.Response> crearProforma(
+  Map<String, dynamic> proforma,
+  String token,
+) async {
+  print('$proforma + $token');
   try {
-    var response = await http.post(Uri.parse('$ipServer/proformaGeneral/crear'),
+    final response = await http.post(
+      Uri.parse('$ipServer/proformaGeneral/crear'),
       headers: {
-        'token': token,
         'Content-Type': 'application/json',
+        'token': token,
       },
+      body: jsonEncode(proforma),
     );
 
     return response;
-  } catch (e) {
-    // Captura cualquier error durante la solicitud
-    throw Exception('Error al realizar la solicitud: $e');
+  } catch (error) {
+    throw Exception('Error al realizar la solicitud: $error');
   }
 }
