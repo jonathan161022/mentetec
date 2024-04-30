@@ -1,4 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:provider/provider.dart';
 import '../custom/custom_text_field.dart';
 import 'package:flutter/material.dart';
 import 'styles.dart';
@@ -25,20 +27,23 @@ class _LoginFormState extends State<LoginForm> {
       final response = await LoginRest.login(username, password);
 
       // Obtiene los datos de la respuesta
+      String token = response.token;
       int idEmpresa = response.idEmpresa;
       String unidadNegocio = response.unidadNegocio;
+
+      // Acceder a la instancia de AuthToken a través de Provider
+      AuthToken authToken = Provider.of<AuthToken>(context, listen: false);
+      authToken.token = token;
 
       //Diseño
       String colorBase = response.colorBase;
 
-
       // Guarda los datos en SharedPreferences
       final prefs = await SharedPreferences.getInstance();
-      // prefs.setString('token', token);
+      prefs.setString('token', token);
       prefs.setInt('idEmpresa', idEmpresa);
       prefs.setString('unidadNegocio', unidadNegocio);
       prefs.setString('colorBase', colorBase);
-
 
       // Navega a la pantalla de Dashboard
       Navigator.pushReplacement(
@@ -46,7 +51,9 @@ class _LoginFormState extends State<LoginForm> {
         MaterialPageRoute(builder: (context) => Dashboard()),
       );
     } catch (e) {
-      print('Error al iniciar sesión: $e');
+      if (kDebugMode) {
+        print('Error al iniciar sesión: $e');
+      }
     }
   }
 
@@ -115,5 +122,16 @@ class _LoginFormState extends State<LoginForm> {
         ),
       ),
     );
+  }
+}
+
+class AuthToken with ChangeNotifier {
+  String? _token;
+
+  String? get token => _token;
+
+  set token(String? value) {
+    _token = value;
+    notifyListeners(); // Notifica a los oyentes sobre el cambio en el token
   }
 }

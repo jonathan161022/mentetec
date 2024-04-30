@@ -1,13 +1,13 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_mentetec/model/producto.dart';
+import 'package:flutter_mentetec/model/model_producto.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'dart:convert';
 
 import '../api/imagenes_rest.dart';
 import '../api/productos_rest.dart';
-import 'crear_proforma.dart';
+import 'proformas.dart';
 
 class Opcion {
   final String nombre;
@@ -92,6 +92,7 @@ class _ProductosState extends State<Productos> with TickerProviderStateMixin {
 
       for (dynamic productoData in productosResponse) {
         Producto producto = Producto(
+          id: productoData['id'],
           codigo: productoData['codigo'] ?? '',
           nombre: productoData['nombre'] ?? '',
           descripcion: productoData['descripcion'] ?? '',
@@ -111,7 +112,7 @@ class _ProductosState extends State<Productos> with TickerProviderStateMixin {
         productos.add(producto);
         nombresImagenes.add(producto.nombreImagen);
         if (kDebugMode) {
-          print("Img1"+ nombresImagenes.toString());
+          print("Img1$nombresImagenes");
         }
       }
 

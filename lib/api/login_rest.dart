@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import '../env/dev.dart';
 
@@ -8,12 +9,11 @@ class LoginResponse {
   final String unidadNegocio;
   final String colorBase;
 
-  LoginResponse({
-    required this.token,
-    required this.idEmpresa,
-    required this.unidadNegocio,
-    required this.colorBase
-  });
+  LoginResponse(
+      {required this.token,
+      required this.idEmpresa,
+      required this.unidadNegocio,
+      required this.colorBase});
 
   factory LoginResponse.fromJson(Map<String, dynamic> json) {
     return LoginResponse(
@@ -45,7 +45,9 @@ class LoginRest {
         throw Exception('Error de inicio de sesión: ${response.body}');
       }
     } catch (e) {
-      print('Error en la solicitud: $e');
+      if (kDebugMode) {
+        print('Error en la solicitud: $e');
+      }
       throw Exception('Error en la solicitud: $e');
     }
   }

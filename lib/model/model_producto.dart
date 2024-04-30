@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 class Producto {
+  final int id;
   final String codigo;
   final String nombre;
   final String descripcion;
@@ -13,6 +14,7 @@ class Producto {
   bool isChecked; // Nuevo atributo para almacenar el estado del checkbox
 
   Producto({
+    required this.id,
     required this.codigo,
     required this.nombre,
     required this.descripcion,
