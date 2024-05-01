@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'Login/login.dart';
 
 void main() {
@@ -13,14 +12,11 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => AuthToken(),
-      child: const MaterialApp(
-        debugShowCheckedModeBanner: false,
-        home: Directionality(
-          textDirection: TextDirection.ltr,
-          child: LoginForm(),
-        ),
+    return const MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Directionality(
+        textDirection: TextDirection.ltr,
+        child: LoginForm(),
       ),
     );
   }

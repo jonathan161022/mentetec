@@ -1,9 +1,10 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mentetec/model/model_producto.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import 'dart:convert';
 
 import '../api/imagenes_rest.dart';
 import '../api/productos_rest.dart';
@@ -27,7 +28,7 @@ class Productos extends StatefulWidget {
 class _ProductosState extends State<Productos> with TickerProviderStateMixin {
   late PageController _pageController;
   late TabController _tabController;
-  late List<Producto> listaProductos = [];
+  List<Producto> listaProductos = [];
   List<Producto> productosSeleccionados = [];
   List<Opcion> menu = [
     Opcion(nombre: 'Realizar Pedido'),
@@ -40,24 +41,6 @@ class _ProductosState extends State<Productos> with TickerProviderStateMixin {
     _pageController = PageController();
     _tabController = TabController(length: 2, vsync: this);
     obtenerDatosUsuario();
-    // obtenerTodosProductos(
-    //         1,
-    //         5,
-    //         'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMTUwNjYyMDk0IiwiaWF0IjoxNzE0MzQ5OTY1LCJleHAiOjE3MTQzNzg3NjV9.EEBiv52kr8e3ZIEUnKzvpeg9su51YaCaSieXoBhBi10',
-    //         'codigo',
-    //         'TC',
-    //         1,
-    //         'c328e550-92b0-11ee-b9d1-0242ac120002')
-    //     .then((response) {
-    //   if (response.statusCode == 200) {
-    //     // La solicitud fue exitosa
-    //     var jsonResponse = jsonDecode(response.body);
-    //     print(jsonResponse); // Muestra el contenido de la respuesta
-    //   } else {
-    //     // La solicitud falló con un código de estado diferente a 200
-    //     print('Error: ${response.reasonPhrase}');
-    //   }
-    // });
   }
 
   @override
@@ -86,10 +69,6 @@ class _ProductosState extends State<Productos> with TickerProviderStateMixin {
       final List<Producto> productos = [];
       List<String> nombresImagenes = [];
 
-      // Obtener la imagen predeterminada
-      ImageProvider imagenPredeterminada =
-          const AssetImage('assets/imagen_predeterminada.jpg');
-
       for (dynamic productoData in productosResponse) {
         Producto producto = Producto(
           id: productoData['id'],
@@ -104,16 +83,8 @@ class _ProductosState extends State<Productos> with TickerProviderStateMixin {
           isChecked: false,
         );
 
-        // Verificar si la imagen está vacía y asignar la imagen predeterminada
-        if (producto.nombreImagen.isEmpty) {
-          producto.imagen = imagenPredeterminada;
-        }
-
         productos.add(producto);
         nombresImagenes.add(producto.nombreImagen);
-        if (kDebugMode) {
-          print("Img1$nombresImagenes");
-        }
       }
 
       setState(() {
@@ -136,16 +107,15 @@ class _ProductosState extends State<Productos> with TickerProviderStateMixin {
   Future<List<ImageProvider>> cargarImagenes(
       String token, List<String> nombresImagenes) async {
     List<ImageProvider> imagenesProductos = [];
-    try {
-      for (String nombreImagen in nombresImagenes) {
+    for (String nombreImagen in nombresImagenes) {
+      try {
         final imagenData = await obtenerImagenes(token, nombreImagen);
-        final imagenBytes = Uint8List.fromList(imagenData);
-        final imagen = MemoryImage(imagenBytes);
+        final imagen = MemoryImage(imagenData!);
         imagenesProductos.add(imagen);
-      }
-    } catch (error) {
-      if (kDebugMode) {
-        print("Error al cargar la imagen: $error");
+      } catch (error) {
+        // Si hay un error al cargar la imagen, añadir una imagen predeterminada
+        imagenesProductos
+            .add(const AssetImage('assets/imagen_predeterminada.jpg'));
       }
     }
     return imagenesProductos;
@@ -158,9 +128,6 @@ class _ProductosState extends State<Productos> with TickerProviderStateMixin {
         productosSeleccionados.add(producto);
       }
     }
-    if (kDebugMode) {
-      print("Lista de productos seleccionados: $productosSeleccionados");
-    }
     return productosSeleccionados;
   }
 
@@ -168,13 +135,33 @@ class _ProductosState extends State<Productos> with TickerProviderStateMixin {
     List<Producto> productosSeleccionados =
         obtenerProductosSeleccionados(listaProductos);
 
-    showDialog<void>(
-      context: context,
-      builder: (BuildContext context) {
-        return DialogoCrearProforma(
-            productosSeleccionados: productosSeleccionados);
-      },
-    );
+    if (productosSeleccionados.isEmpty) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Alerta'),
+            content: const Text('Por favor, selecciona al menos un producto.'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text('Aceptar'),
+              ),
+            ],
+          );
+        },
+      );
+    } else {
+      showDialog<void>(
+        context: context,
+        builder: (BuildContext context) {
+          return DialogoCrearProforma(
+              productosSeleccionados: productosSeleccionados);
+        },
+      );
+    }
   }
 
   @override
@@ -192,18 +179,6 @@ class _ProductosState extends State<Productos> with TickerProviderStateMixin {
             }).toList();
           }, onSelected: (value) async {
             if (value == 'Realizar Pedido') {
-              // Obtener la lista de productos seleccionados
-              // List<Producto> productosSeleccionados =
-              //     obtenerProductosSeleccionados(listaProductos);
-              // // Navegar a la pantalla CrearProformaScreen y pasar la lista de productos seleccionados
-              // Navigator.push(
-              //   context,
-              //   MaterialPageRoute(
-              //     // Pasa la lista de productos seleccionados como parámetro al constructor de CrearProformaScreen
-              //     builder: (context) => CrearProforma(
-              //         productosSeleccionados: productosSeleccionados),
-              //   ),
-              // );
               _mostrarDialogo(context);
             }
           }),
@@ -294,8 +269,9 @@ class _ProductosState extends State<Productos> with TickerProviderStateMixin {
 
     return ListView.separated(
       itemCount: pageProductos.length,
-      separatorBuilder: (BuildContext context, int index) =>
-          const Divider(), // Separador entre elementos
+      separatorBuilder: (BuildContext context, int index) => const SizedBox(
+        height: 10,
+      ), // Separador entre elementos
       itemBuilder: (context, index) {
         return _buildProductItem(pageProductos[index]);
       },
@@ -303,57 +279,61 @@ class _ProductosState extends State<Productos> with TickerProviderStateMixin {
   }
 
   Widget _buildProductItem(Producto producto) {
-    ImageProvider imagenPredeterminada =
-        const AssetImage('assets/imagen_predeterminada.jpg');
-
-    Color backgroundColor = Colors.grey;
-
-    // Obtener el color de fondo
-
     return ClipRRect(
-      borderRadius: BorderRadius.circular(10),
-      child: ListTile(
-        title: Text(producto.nombre),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(producto.descripcion),
-            Text(
-                'Precio de venta: \$${producto.precioVenta.toStringAsFixed(2)}'),
-          ],
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 15),
+        padding: const EdgeInsets.symmetric(vertical: 15),
+        decoration: BoxDecoration(
+          color: const Color.fromRGBO(241, 241, 241, 1),
+          borderRadius: BorderRadius.circular(10),
         ),
-        leading: producto.imagen != null
-            ? Image(image: producto.imagen!)
-            : Image(image: imagenPredeterminada),
-        trailing: Checkbox(
-          shape: const CircleBorder(),
-          value: producto.isChecked,
-          onChanged: (bool? value) {
-            setState(() {
-              producto.isChecked = value ?? false;
-              if (producto.isChecked) {
-                // Agregar el producto a la lista de productos seleccionados
-                productosSeleccionados.add(producto);
-              } else {
-                // Eliminar el producto de la lista de productos seleccionados
-                productosSeleccionados.remove(producto);
-              }
-              if (kDebugMode) {
-                print(productosSeleccionados.toString());
-              }
-            });
-          },
+        child: ListTile(
+          title: Text(producto.nombre),
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(producto.descripcion),
+              Text(
+                '\$${producto.precioVenta.toStringAsFixed(2)}',
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+          leading: producto.imagen != null
+              ? Image(image: producto.imagen!)
+              : Image.asset('assets/imagen_predeterminada.jpg'),
+          trailing: Checkbox(
+            shape: const CircleBorder(),
+            value: producto.isChecked,
+            onChanged: (bool? value) {
+              setState(() {
+                producto.isChecked = value ?? false;
+                if (producto.isChecked) {
+                  // Agregar el producto a la lista de productos seleccionados
+                  productosSeleccionados.add(producto);
+                } else {
+                  // Eliminar el producto de la lista de productos seleccionados
+                  productosSeleccionados.remove(producto);
+                }
+              });
+            },
+          ),
         ),
       ),
     );
   }
 }
 
-class DialogoCrearProforma extends StatelessWidget {
+class DialogoCrearProforma extends StatefulWidget {
   final List<Producto> productosSeleccionados;
 
-  DialogoCrearProforma({required this.productosSeleccionados});
+  const DialogoCrearProforma({super.key, required this.productosSeleccionados});
 
+  @override
+  State<DialogoCrearProforma> createState() => _DialogoCrearProformaState();
+}
+
+class _DialogoCrearProformaState extends State<DialogoCrearProforma> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
@@ -361,7 +341,8 @@ class DialogoCrearProforma extends StatelessWidget {
       child: SizedBox(
         height: MediaQuery.of(context).size.height, // Tamaño de la pantalla
         width: MediaQuery.of(context).size.width, // Tamaño de la pantalla
-        child: CrearProforma(productosSeleccionados: productosSeleccionados),
+        child: CrearProforma(
+            productosSeleccionados: widget.productosSeleccionados),
       ),
     );
   }
