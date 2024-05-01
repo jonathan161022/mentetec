@@ -30,10 +30,33 @@ class _ProductosState extends State<Productos> with TickerProviderStateMixin {
   late TabController _tabController;
   List<Producto> listaProductos = [];
   List<Producto> productosSeleccionados = [];
+  String filtro = 'nombre'; // Inicialmente busca por nombre
+  int pageInit = 0;
+  int pageEnd = 5;
+  late SharedPreferences prefs;
+  int empresaId = 0;
+  String unidadNegocio = '';
+  String token = '';
+  String valor = '';
+  List<Producto> productosFiltrados = [];
   List<Opcion> menu = [
     Opcion(nombre: 'Realizar Pedido'),
     Opcion(nombre: 'Opcion 2'),
   ];
+  final TextEditingController _searchController =
+      TextEditingController(); // Agrega el controlador de texto para el buscador
+
+  void onSearchTextChanged(String searchText) {
+    setState(() {
+      if (searchText.isEmpty) {
+        // Si el texto de búsqueda está vacío, restaura la lista completa
+        productosFiltrados = listaProductos;
+      } else {
+        // Filtra la lista de productos por el texto de búsqueda
+        cargarProductos();
+      }
+    });
+  }
 
   @override
   void initState() {
@@ -47,21 +70,21 @@ class _ProductosState extends State<Productos> with TickerProviderStateMixin {
   void dispose() {
     _pageController.dispose();
     _tabController.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
   Future<void> obtenerDatosUsuario() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    int empresaId = prefs.getInt('idEmpresa') ?? 0;
-    String unidadNegocio = prefs.getString('unidadNegocio') ?? '';
-    String token = prefs.getString('token') ?? '';
-    String filtro = '';
-    String valor = '';
-    await cargarProductos(empresaId, unidadNegocio, token, filtro, valor);
+    prefs = await SharedPreferences.getInstance();
+    empresaId = prefs.getInt('idEmpresa') ?? 0;
+    unidadNegocio = prefs.getString('unidadNegocio') ?? '';
+    token = prefs.getString('token') ?? '';
+    cargarProductos();
   }
 
-  Future<void> cargarProductos(int empresaId, String unidadNegocio,
-      String token, String filtro, String valor) async {
+  Future<void> cargarProductos() async {
+    valor = _searchController.text;
+
     try {
       final response = await obtenerTodosProductos(
           0, 5, token, filtro, valor, empresaId, unidadNegocio);
@@ -89,6 +112,7 @@ class _ProductosState extends State<Productos> with TickerProviderStateMixin {
 
       setState(() {
         listaProductos = productos;
+        productosFiltrados = productos; // Inicializa la lista filtrada
       });
 
       List<ImageProvider> imagenesProductos =
@@ -184,52 +208,76 @@ class _ProductosState extends State<Productos> with TickerProviderStateMixin {
           }),
         ],
       ),
-      body: Stack(
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          PageView.builder(
-            controller: _pageController,
-            onPageChanged: _handlePageViewChanged,
-            itemCount: (listaProductos.length / 5).ceil(),
-            itemBuilder: (context, index) {
-              return _buildProductPage(index);
-            },
+          Container(
+            margin: const EdgeInsets.all(
+                15.0), // Ajusta el margen según tus necesidades
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextFormField(
+                    controller: _searchController,
+                    onChanged: onSearchTextChanged,
+                    decoration: InputDecoration(
+                      labelText: 'Buscar por $filtro',
+                      border: const OutlineInputBorder(),
+                      suffixIcon: IconButton(
+                        icon: const Icon(Icons.filter_list),
+                        onPressed: () {
+                          // Implementa la lógica para abrir el menú de filtros
+                          mostrarMenuFiltro(context);
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
-          Positioned(
-            bottom: 10,
-            left: 5,
-            right: 5,
-            child: Center(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.arrow_back_ios),
-                    onPressed: () {
-                      if (_pageController.page!.toInt() > 0) {
-                        _pageController.previousPage(
-                          duration: const Duration(milliseconds: 500),
-                          curve: Curves.ease,
-                        );
-                      }
-                    },
-                  ),
-                  TabPageSelector(
-                    controller: _tabController,
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.arrow_forward_ios),
-                    onPressed: () {
-                      if (_pageController.page!.toInt() <
-                          (listaProductos.length / 5).ceil() - 1) {
-                        _pageController.nextPage(
-                          duration: const Duration(milliseconds: 500),
-                          curve: Curves.ease,
-                        );
-                      }
-                    },
-                  ),
-                ],
-              ),
+          Expanded(
+            child: PageView.builder(
+              controller: _pageController,
+              onPageChanged: _handlePageViewChanged,
+              itemCount: (productosFiltrados.length / 5).ceil(),
+              itemBuilder: (context, index) {
+                return _buildProductPage(index);
+              },
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.arrow_back_ios),
+                  onPressed: () {
+                    if (_pageController.page!.toInt() > 0) {
+                      _pageController.previousPage(
+                        duration: const Duration(milliseconds: 500),
+                        curve: Curves.ease,
+                      );
+                    }
+                  },
+                ),
+                TabPageSelector(
+                  controller: _tabController,
+                ),
+                IconButton(
+                  icon: const Icon(Icons.arrow_forward_ios),
+                  onPressed: () {
+                    if (_pageController.page!.toInt() <
+                        (listaProductos.length / 5).ceil() - 1) {
+                      _pageController.nextPage(
+                        duration: const Duration(milliseconds: 500),
+                        curve: Curves.ease,
+                      );
+                    }
+                  },
+                ),
+              ],
             ),
           ),
         ],
@@ -261,11 +309,50 @@ class _ProductosState extends State<Productos> with TickerProviderStateMixin {
     }
   }
 
+  void mostrarMenuFiltro(BuildContext context) {
+    showMenu<String>(
+      context: context,
+      position: const RelativeRect.fromLTRB(
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+      ),
+      items: [
+        const PopupMenuItem<String>(
+          value: 'nombre',
+          child: Text('Nombre'),
+        ),
+        const PopupMenuItem<String>(
+          value: 'descripcion',
+          child: Text('Descripción'),
+        ),
+        const PopupMenuItem<String>(
+          value: 'cantidad',
+          child: Text('Cantidad'),
+        ),
+        const PopupMenuItem<String>(
+          value: 'codigo',
+          child: Text('Código'),
+        ),
+      ],
+    ).then((value) {
+      if (value != null) {
+        setState(() {
+          filtro = value;
+        });
+      }
+    });
+  }
+
   Widget _buildProductPage(int pageIndex) {
     final startIndex = pageIndex * 5;
     final endIndex = startIndex + 5;
-    final pageProductos = listaProductos.sublist(startIndex,
-        endIndex < listaProductos.length ? endIndex : listaProductos.length);
+    final pageProductos = productosFiltrados.sublist(
+        startIndex,
+        endIndex < productosFiltrados.length
+            ? endIndex
+            : productosFiltrados.length);
 
     return ListView.separated(
       itemCount: pageProductos.length,

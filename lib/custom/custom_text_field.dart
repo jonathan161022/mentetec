@@ -5,6 +5,7 @@ class CustomTextField extends StatefulWidget {
   final String labelText;
   final bool obscureText;
   final FormFieldValidator<String>? validator;
+  final ValueChanged<String>? onChanged; // Agrega el parámetro onChanged
 
   const CustomTextField({
     super.key,
@@ -12,6 +13,7 @@ class CustomTextField extends StatefulWidget {
     required this.labelText,
     this.obscureText = false,
     this.validator,
+    this.onChanged, // Agrega onChanged a los parámetros
   });
 
   @override
@@ -27,11 +29,11 @@ class _CustomTextFieldState extends State<CustomTextField> {
       decoration: InputDecoration(
         labelText: widget.labelText,
         border: const OutlineInputBorder(),
-        errorText: widget.controller.text.isEmpty ? 'Ingrese ${widget.labelText}' : null,
+        errorText: widget.controller.text.isEmpty
+            ? 'Ingrese ${widget.labelText}'
+            : null,
       ),
-      onChanged: (String val) {
-        setState(() {}); // No es necesario realizar cambios aquí para el errorText
-      },
+      onChanged: widget.onChanged,
       validator: widget.validator,
     );
   }

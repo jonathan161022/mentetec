@@ -98,7 +98,6 @@ class _CrearProformaState extends State<CrearProforma> {
 
     final proformaData = {
       'numero': '001-001-000000049',
-      'personaId': 1,
       'nombreCliente': nombreCliente,
       'personaRegistroId': 1,
       'personaVendedorId': 1,
@@ -116,17 +115,36 @@ class _CrearProformaState extends State<CrearProforma> {
     try {
       final response = await proformaRest.crearProforma(proformaData, token);
       // Convertir el cuerpo de la respuesta JSON en un Map
-      Map<String, dynamic> responseData = jsonDecode(response.body);
+      // Map<String, dynamic> responseData = jsonDecode(response.body);
 
-      // Acceder al campo 'mensaje' en el Map
-      String mensaje = responseData['mensaje'];
+      // // Acceder al campo 'mensaje' en el Map
+      // String mensaje = responseData['mensaje'];
 
-      CustomSnackbar.show(context, mensaje);
-
+      // CustomSnackbar.show(context, mensaje);
+      Navigator.of(context).pop();
+      mostrarDialogGuardar(context);
     } catch (e) {
-      
       CustomSnackbar.show(context, 'Error al registrar.');
     }
+  }
+
+  Future<void> mostrarDialogGuardar(BuildContext context) async {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: const Text('Proforma guardada correctamente.'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Aceptar'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -138,7 +156,9 @@ class _CrearProformaState extends State<CrearProforma> {
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
         child: Column(
+          
           children: [
+            const Text('Nro. Pedido: '),
             CustomTextField(
               controller: _nombreCliente,
               labelText: 'Nombre Cliente:',
@@ -161,7 +181,8 @@ class _CrearProformaState extends State<CrearProforma> {
                     borderRadius:
                         BorderRadius.circular(10), // Radio de borde redondeado
                     child: Container(
-                      color: Colors.grey[100], // Color de fondo deseado para cada elemento
+                      color: Colors.grey[
+                          100], // Color de fondo deseado para cada elemento
                       padding: const EdgeInsets.symmetric(horizontal: 15),
                       child: Row(
                         children: [
@@ -267,4 +288,3 @@ class Validaciones {
     return null; // Si la validación es exitosa, devuelve null
   }
 }
-

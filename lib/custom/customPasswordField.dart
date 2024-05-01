@@ -38,7 +38,7 @@ class _PasswordFieldState extends State<PasswordField> {
       validator: widget.validator,
       onFieldSubmitted: widget.onFieldSubmitted,
       decoration: InputDecoration(
-        border: const UnderlineInputBorder(),
+        border: const OutlineInputBorder(),
         filled: true,
         hintText: widget.hintText,
         labelText: widget.labelText,
