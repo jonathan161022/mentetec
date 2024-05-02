@@ -21,6 +21,9 @@ class CustomTextField extends StatefulWidget {
 }
 
 class _CustomTextFieldState extends State<CustomTextField> {
+  bool _textHasBeenDeleted =
+      false; // Variable para controlar si se ha borrado el texto
+
   @override
   Widget build(BuildContext context) {
     return TextFormField(
@@ -29,11 +32,17 @@ class _CustomTextFieldState extends State<CustomTextField> {
       decoration: InputDecoration(
         labelText: widget.labelText,
         border: const OutlineInputBorder(),
-        errorText: widget.controller.text.isEmpty
+        errorText: _textHasBeenDeleted && widget.controller.text.isEmpty
             ? 'Ingrese ${widget.labelText}'
             : null,
       ),
-      onChanged: widget.onChanged,
+      onChanged: (value) {
+        setState(() {
+          // Verifica si se ha borrado el texto
+          _textHasBeenDeleted = value.isEmpty;
+        });
+        widget.onChanged?.call(value); // Llama al onChanged si está definido
+      },
       validator: widget.validator,
     );
   }

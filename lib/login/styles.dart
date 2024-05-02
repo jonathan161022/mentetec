@@ -15,7 +15,7 @@ class CustomStyles {
     shape: MaterialStateProperty.all<OutlinedBorder>(
       RoundedRectangleBorder(
         borderRadius:
-            BorderRadius.circular(30.0), // Ajusta el radio según tu preferencia
+            BorderRadius.circular(10.0), // Ajusta el radio según tu preferencia
       ),
     ),
   );

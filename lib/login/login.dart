@@ -70,7 +70,8 @@ class _LoginFormState extends State<LoginForm> {
         ),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.symmetric(
+            horizontal: 40), // Se corrigió la llave faltante aquí
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -95,34 +96,30 @@ class _LoginFormState extends State<LoginForm> {
                 return null;
               },
             ),
-            const SizedBox(height: 28),
-            // CustomTextField(
-            //   controller: _passwordController,
-            //   labelText: 'Contraseña',
-            //   obscureText: true,
-            //   validator: (value) {
-            //     if (value == null || value.isEmpty) {
-            //       return 'Ingrese su contraseña';
-            //     }
-            //     return null;
-            //   },
-            // ),
+            const SizedBox(height: 25),
             PasswordField(
               controller: _passwordController,
               labelText: 'Password',
+              borderColor: Colors.grey.shade600,
+              backgroundColor: Colors.white,
               onFieldSubmitted: (String value) {
                 setState(() {
                   password = value;
                 });
               },
             ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _login,
-              style: CustomStyles.buttonStyle,
-              child: const Text(
-                'INGRESAR',
-                style: TextStyle(color: Colors.black),
+            const SizedBox(
+              height: 40,
+            ),
+            SizedBox(
+              height: 40, // Establece la altura deseada aquí
+              child: ElevatedButton(
+                onPressed: _login,
+                style: CustomStyles.buttonStyle,
+                child: const Text(
+                  'INGRESAR',
+                  style: TextStyle(color: Colors.white),
+                ),
               ),
             ),
           ],

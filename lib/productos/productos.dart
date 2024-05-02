@@ -224,7 +224,7 @@ class _ProductosState extends State<Productos> with TickerProviderStateMixin {
                       labelText: 'Buscar por $filtro',
                       border: const OutlineInputBorder(),
                       suffixIcon: IconButton(
-                        icon: const Icon(Icons.filter_list),
+                        icon: const Icon(Icons.tune),
                         onPressed: () {
                           // Implementa la lógica para abrir el menú de filtros
                           mostrarMenuFiltro(context);
