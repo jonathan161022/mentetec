@@ -8,7 +8,9 @@ Future<Uint8List?> obtenerImagenes(String token, String imageName) async {
         await http.get(Uri.parse('$ipServer/api/images/$imageName'), headers: {
       'token': token,
     });
-
+    if (kDebugMode) {
+      print('Respuesta del servidor: ${response.bodyBytes}');
+    }
     if (response.statusCode == 200) {
       return response.bodyBytes;
     } else {

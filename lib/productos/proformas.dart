@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_mentetec/Login/styles.dart';
 import 'package:flutter_mentetec/custom/customSnackBar.dart';
@@ -14,10 +12,10 @@ class CrearProforma extends StatefulWidget {
   const CrearProforma({super.key, required this.productosSeleccionados});
 
   @override
-  _CrearProformaState createState() => _CrearProformaState();
+  _ProformaState createState() => _ProformaState();
 }
 
-class _CrearProformaState extends State<CrearProforma> {
+class _ProformaState extends State<CrearProforma> {
   late List<int> cantidades;
   late List<double> preciosTotales;
   late double precioFinal;

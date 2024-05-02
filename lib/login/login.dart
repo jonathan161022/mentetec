@@ -1,6 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
+import 'package:flutter_mentetec/api/imagenes_rest.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:provider/provider.dart';
 import '../custom/customPasswordField.dart';
 import '../custom/custom_text_field.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +10,7 @@ import 'styles.dart';
 import '../api/login_rest.dart';
 import '../Dashboard/dashboard.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../api/imagenes_rest.dart';
 
 class LoginForm extends StatefulWidget {
   const LoginForm({super.key});
@@ -19,6 +22,7 @@ class _LoginFormState extends State<LoginForm> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   String? password;
+  late SharedPreferences prefs;
 
   void _login() async {
     String username = _usernameController.text;
@@ -32,6 +36,11 @@ class _LoginFormState extends State<LoginForm> {
       String token = response.token;
       int idEmpresa = response.idEmpresa;
       String unidadNegocio = response.unidadNegocio;
+      String logo = response.logo;
+
+      final imagenData = await obtenerImagenes(response.token, response.logo);
+      // Convertir la imagen a base64
+      String imagenBase64 = base64Encode(imagenData as List<int>);
 
       //Diseño
       String colorBase = response.colorBase;
@@ -42,6 +51,8 @@ class _LoginFormState extends State<LoginForm> {
       prefs.setInt('idEmpresa', idEmpresa);
       prefs.setString('unidadNegocio', unidadNegocio);
       prefs.setString('colorBase', colorBase);
+
+      prefs.setString('logo', imagenBase64);
 
       // Navega a la pantalla de Dashboard
       Navigator.pushReplacement(
@@ -55,6 +66,20 @@ class _LoginFormState extends State<LoginForm> {
     }
   }
 
+  Future<ImageProvider> cargarImagen(String token, String logo) async {
+    try {
+      final imagenData = await (token, logo);
+      final imagenBase64 =
+          base64Encode(imagenData as List<int>); // Convierte la imagen a base64
+      final imagen = MemoryImage(
+          base64Decode(imagenBase64)); // Crea la imagen a partir de base64
+      return imagen;
+    } catch (error) {
+      // Si hay un error al cargar la imagen, retorna una imagen predeterminada
+      return const AssetImage('assets/imagen_predeterminada.jpg');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -62,9 +87,9 @@ class _LoginFormState extends State<LoginForm> {
         title: Row(
           children: [
             SvgPicture.asset(
-              "assets/logo.svg",
-              width: 50,
-              height: 30,
+              'assets/logo.svg',
+              width: 60,
+              height: 40,
             ),
           ],
         ),

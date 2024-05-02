@@ -8,9 +8,11 @@ class LoginResponse {
   final int idEmpresa;
   final String unidadNegocio;
   final String colorBase;
+  final String logo;
 
   LoginResponse(
-      {required this.token,
+      {required this.logo,
+      required this.token,
       required this.idEmpresa,
       required this.unidadNegocio,
       required this.colorBase});
@@ -21,6 +23,7 @@ class LoginResponse {
       idEmpresa: json['idEmpresa'],
       unidadNegocio: json['unidadNegocio'],
       colorBase: json['colorBase'],
+      logo: json['logo'],
     );
   }
 }

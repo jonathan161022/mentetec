@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mentetec/model/model_producto.dart';
+import 'package:flutter_mentetec/productos/proformas_list.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../api/imagenes_rest.dart';
@@ -41,7 +42,7 @@ class _ProductosState extends State<Productos> with TickerProviderStateMixin {
   List<Producto> productosFiltrados = [];
   List<Opcion> menu = [
     Opcion(nombre: 'Realizar Pedido'),
-    Opcion(nombre: 'Opcion 2'),
+    Opcion(nombre: 'Mis Proformas'),
   ];
   final TextEditingController _searchController =
       TextEditingController(); // Agrega el controlador de texto para el buscador
@@ -204,6 +205,11 @@ class _ProductosState extends State<Productos> with TickerProviderStateMixin {
           }, onSelected: (value) async {
             if (value == 'Realizar Pedido') {
               _mostrarDialogo(context);
+            } else if (value == 'Mis Proformas') {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ProformasList()),
+              );
             }
           }),
         ],

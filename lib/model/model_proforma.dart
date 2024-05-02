@@ -1,6 +1,6 @@
 import 'package:flutter_mentetec/model/model_producto.dart';
 
-class CrearProforma {
+class Proforma {
   final int personaId;
   final String nombreCliente;
   final int empresaId;
@@ -8,7 +8,7 @@ class CrearProforma {
   final List<Producto> productos;
   final String unidadNegocio;
 
-  CrearProforma({
+  Proforma({
     required this.personaId,
     required this.nombreCliente,
     required this.empresaId,
