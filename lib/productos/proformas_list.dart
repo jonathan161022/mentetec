@@ -62,6 +62,7 @@ class _ProformasListState extends State<ProformasList>
             .toList();
         proforma = Proforma(
           personaId: proformaData['personaId'] ?? 0,
+          numero: proformaData['numero'] ?? '',
           nombreCliente: proformaData['nombreCliente'] ?? '',
           empresaId: proformaData['empresaId'] ?? 0,
           unidadNegocio: proformaData['unidadNegocio'] ?? '',
@@ -135,7 +136,7 @@ class _ProformasListState extends State<ProformasList>
                       if (_pageController.page!.toInt() <
                           (listaProformas.length / 5).ceil() - 1) {
                         _pageController.nextPage(
-                          duration: const Duration(milliseconds: 500),
+                          duration: const Duration(milliseconds: 100),
                           curve: Curves.ease,
                         );
                       }
@@ -207,31 +208,39 @@ class _ProformasListState extends State<ProformasList>
 
   Widget _buildProductItem(Proforma proforma) {
     return ClipRRect(
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 15),
-        padding: const EdgeInsets.symmetric(vertical: 15),
-        decoration: BoxDecoration(
-          color: const Color.fromRGBO(241, 241, 241, 1),
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: ListTile(
-          title: Text('Total: ${proforma.total.toString()}'),
-          subtitle: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(proforma.nombreCliente),
-            ],
-          ),
-          trailing: TextButton(
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (context) => DialogoProductosProforma(
-                  productosSeleccionados: proforma.productos,
-                ),
-              );
-            },
-            child: const Text('Detalle'),
+      child: Card(
+        color: Colors.white,
+        margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 2),
+        elevation: 2,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          child: ListTile(
+            title: Text(
+              'Número: ${proforma.numero.toString()}',
+              style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 15),
+            ),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(proforma.nombreCliente),
+                Text('Total: ${proforma.total.toString()}'),
+              ],
+            ),
+            trailing: TextButton(
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => DialogoProductosProforma(
+                    productosSeleccionados: proforma.productos,
+                  ),
+                );
+              },
+              child: const Icon(
+                Icons.receipt_long,
+                color: Colors.blue,
+                size: 40,
+              ),
+            ),
           ),
         ),
       ),

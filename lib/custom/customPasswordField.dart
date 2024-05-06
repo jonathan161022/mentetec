@@ -42,12 +42,8 @@ class _PasswordFieldState extends State<PasswordField> {
       validator: widget.validator,
       onFieldSubmitted: widget.onFieldSubmitted,
       decoration: InputDecoration(
-        border: const OutlineInputBorder(),
-        enabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(
-            color: widget.borderColor ?? Theme.of(context).disabledColor, // Color del borde en estado inactivo
-          ),
-        ),
+        border: const OutlineInputBorder(
+            borderRadius: BorderRadius.all(Radius.circular(10))),
         filled: true,
         hintText: widget.hintText,
         labelText: widget.labelText,

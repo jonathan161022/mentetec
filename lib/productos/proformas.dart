@@ -1,10 +1,11 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mentetec/Login/styles.dart';
 import 'package:flutter_mentetec/custom/customSnackBar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../api/proformas_rest.dart';
+import '../custom/customTextField.dart';
 import '../model/model_producto.dart';
-import '../custom/custom_text_field.dart';
-import '../api/proformas_rest.dart' as proformaRest;
 
 class CrearProforma extends StatefulWidget {
   final List<Producto> productosSeleccionados;
@@ -21,6 +22,7 @@ class _ProformaState extends State<CrearProforma> {
   late double precioFinal;
   int personaId = 1;
   int empresaId = 1;
+  late String numeroProforma = '';
   final TextEditingController _nombreCliente = TextEditingController();
 
   @override
@@ -40,6 +42,7 @@ class _ProformaState extends State<CrearProforma> {
     }
 
     calcularPrecioFinal(); // Cálculo del precio final inicial
+    obtenerNumeroProforma(numeroProforma);
   }
 
   // Método para actualizar la cantidad de un producto
@@ -65,6 +68,33 @@ class _ProformaState extends State<CrearProforma> {
   // Método para calcular el precio final de la proforma
   void calcularPrecioFinal() {
     precioFinal = preciosTotales.reduce((a, b) => a + b);
+  }
+
+  Future<void> obtenerNumeroProforma(String numero) async {
+    try {
+      String token =
+          (await SharedPreferences.getInstance()).getString('token') ?? '';
+      String unidadNegocio =
+          (await SharedPreferences.getInstance()).getString('unidadNegocio') ??
+              '';
+      int empresaId =
+          (await SharedPreferences.getInstance()).getInt('empresaId') ?? 1;
+
+      // Obtener el número de proforma desde la API
+      final response =
+          await generarNumeroProforma(unidadNegocio, empresaId, token);
+      setState(() {
+        numeroProforma = response; // Actualizar el número de proforma
+      });
+      if (kDebugMode) {
+        print('Numero: $response');
+      }
+    } catch (e) {
+      // Manejo de errores...
+      if (kDebugMode) {
+        print('Error al generar el número de la proforma: $e');
+      }
+    }
   }
 
   Future<void> guardarProforma() async {
@@ -95,7 +125,7 @@ class _ProformaState extends State<CrearProforma> {
     }
 
     final proformaData = {
-      'numero': '001-001-000000049',
+      'numero': numeroProforma,
       'nombreCliente': nombreCliente,
       'personaRegistroId': 1,
       'personaVendedorId': 1,
@@ -111,7 +141,7 @@ class _ProformaState extends State<CrearProforma> {
       return; // Salir del método si la validación falla
     }
     try {
-      final response = await proformaRest.crearProforma(proformaData, token);
+      final response = await crearProforma(proformaData, token);
       // Convertir el cuerpo de la respuesta JSON en un Map
       // Map<String, dynamic> responseData = jsonDecode(response.body);
 
@@ -154,9 +184,8 @@ class _ProformaState extends State<CrearProforma> {
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
         child: Column(
-          
           children: [
-            const Text('Nro. Pedido: '),
+            Text('Nro. Pedido: $numeroProforma'),
             CustomTextField(
               controller: _nombreCliente,
               labelText: 'Nombre Cliente:',

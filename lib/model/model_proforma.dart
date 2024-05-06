@@ -2,6 +2,7 @@ import 'package:flutter_mentetec/model/model_producto.dart';
 
 class Proforma {
   final int personaId;
+  final String numero;
   final String nombreCliente;
   final int empresaId;
   final double total;
@@ -10,6 +11,7 @@ class Proforma {
 
   Proforma({
     required this.personaId,
+    required this.numero,
     required this.nombreCliente,
     required this.empresaId,
     required this.total,

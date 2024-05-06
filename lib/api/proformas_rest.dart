@@ -23,6 +23,7 @@ Future<http.Response> crearProforma(
     throw Exception('Error al realizar la solicitud: $error');
   }
 }
+
 Future<http.Response> obtenerTodasProformas(
   int pageInit,
   int pageEnd,
@@ -49,6 +50,37 @@ Future<http.Response> obtenerTodasProformas(
 
     return response;
   } catch (error) {
+    throw Exception('Error al realizar la solicitud: $error');
+  }
+}
+
+Future<String> generarNumeroProforma(
+    String unidadNegocio, int empresaId, String token) async {
+  try {
+    final response = await http.get(
+      Uri.parse(
+          '$ipServer/proformaGeneral/generar-numero/$unidadNegocio/empresa/$empresaId'),
+      headers: {
+        'Content-Type': 'application/json',
+        'token': token,
+      },
+    );
+
+    if (response.statusCode == 200) {
+      // Parsear el JSON de la respuesta
+      final Map<String, dynamic> responseData = json.decode(response.body);
+
+      // Obtener el valor del campo "numero"
+      final String numeroProforma = responseData['numero'];
+
+      // Devolver solo el número de proforma
+      return numeroProforma;
+    } else {
+      // Si la solicitud no fue exitosa, lanzar una excepción con el código de estado
+      throw Exception('Error: ${response.statusCode}');
+    }
+  } catch (error) {
+    // Si hay un error, lanzar una excepción con el mensaje de error
     throw Exception('Error al realizar la solicitud: $error');
   }
 }

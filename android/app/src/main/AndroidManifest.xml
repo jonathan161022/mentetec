@@ -1,4 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.CLEARTEXT_TRAFFIC" />
     <application
         android:label="flutter_mentetec"
         android:name="${applicationName}"

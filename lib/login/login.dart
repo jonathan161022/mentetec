@@ -4,13 +4,12 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_mentetec/api/imagenes_rest.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../custom/customPasswordField.dart';
-import '../custom/custom_text_field.dart';
+import '../custom/customTextField.dart';
 import 'package:flutter/material.dart';
 import 'styles.dart';
 import '../api/login_rest.dart';
 import '../Dashboard/dashboard.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../api/imagenes_rest.dart';
 
 class LoginForm extends StatefulWidget {
   const LoginForm({super.key});
@@ -100,10 +99,8 @@ class _LoginFormState extends State<LoginForm> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text(
-              'Iniciar sesión',
-              style: CustomStyles.titleStyle,
-            ),
+            const Text('Iniciar Sesión',
+                style: TextStyle(color: Colors.black54, fontSize: 30)),
             const SizedBox(height: 16),
             SvgPicture.asset(
               'assets/solologo.svg',
@@ -137,7 +134,8 @@ class _LoginFormState extends State<LoginForm> {
               height: 40,
             ),
             SizedBox(
-              height: 40, // Establece la altura deseada aquí
+              height: 50, // Establece la altura deseada aquí
+              width: 510,
               child: ElevatedButton(
                 onPressed: _login,
                 style: CustomStyles.buttonStyle,

@@ -1,8 +1,7 @@
 import 'dart:convert';
-import 'dart:typed_data';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+
 import 'package:flutter_mentetec/model/model_producto.dart';
 import 'package:flutter_mentetec/productos/proformas_list.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -65,6 +64,7 @@ class _ProductosState extends State<Productos> with TickerProviderStateMixin {
     _pageController = PageController();
     _tabController = TabController(length: 2, vsync: this);
     obtenerDatosUsuario();
+    // Agrega un listener al pageController
   }
 
   @override
@@ -265,6 +265,7 @@ class _ProductosState extends State<Productos> with TickerProviderStateMixin {
                         duration: const Duration(milliseconds: 500),
                         curve: Curves.ease,
                       );
+                      _tabController.index = _pageController.page!.toInt() - 1;
                     }
                   },
                 ),
@@ -280,6 +281,7 @@ class _ProductosState extends State<Productos> with TickerProviderStateMixin {
                         duration: const Duration(milliseconds: 500),
                         curve: Curves.ease,
                       );
+                      _tabController.index = _pageController.page!.toInt() + 1;
                     }
                   },
                 ),
@@ -295,8 +297,9 @@ class _ProductosState extends State<Productos> with TickerProviderStateMixin {
     if (!_isOnDesktopAndWeb) {
       return;
     }
-    _tabController.index = currentPageIndex;
-    setState(() {});
+    setState(() {
+      _tabController.index = currentPageIndex;
+    });
   }
 
   bool get _isOnDesktopAndWeb {
@@ -360,13 +363,27 @@ class _ProductosState extends State<Productos> with TickerProviderStateMixin {
             ? endIndex
             : productosFiltrados.length);
 
+    // Carga las imágenes de los productos de esta página si aún no se han cargado
+    for (var producto in pageProductos) {
+      if (producto.imagen == null) {
+        cargarImagenes(token, [producto.nombreImagen]).then((imagenes) {
+          setState(() {
+            producto.imagen = imagenes[0];
+          });
+        }).catchError((error) {
+          print('Error al cargar la imagen: $error');
+        });
+      }
+    }
+
     return ListView.separated(
       itemCount: pageProductos.length,
       separatorBuilder: (BuildContext context, int index) => const SizedBox(
         height: 10,
       ), // Separador entre elementos
       itemBuilder: (context, index) {
-        return _buildProductItem(pageProductos[index]);
+        final producto = pageProductos[index];
+        return _buildProductItem(producto);
       },
     );
   }
@@ -393,8 +410,29 @@ class _ProductosState extends State<Productos> with TickerProviderStateMixin {
             ],
           ),
           leading: producto.imagen != null
-              ? Image(image: producto.imagen!)
-              : Image.asset('assets/imagen_predeterminada.jpg'),
+              ? Container(
+                  width: 50, // ajusta el ancho según tus necesidades
+                  height: 50, // ajusta la altura según tus necesidades
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8), // borde redondeado
+                    image: DecorationImage(
+                      image: producto.imagen!,
+                      fit: BoxFit
+                          .cover, // ajusta la imagen para llenar el cuadro
+                    ),
+                  ),
+                )
+              : Container(
+                  width: 50,
+                  height: 50,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Image.asset(
+                    'assets/imagen_predeterminada.jpg',
+                    fit: BoxFit.cover,
+                  ),
+                ),
           trailing: Checkbox(
             shape: const CircleBorder(),
             value: producto.isChecked,

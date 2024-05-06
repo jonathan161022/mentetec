@@ -31,7 +31,8 @@ class _CustomTextFieldState extends State<CustomTextField> {
       obscureText: widget.obscureText,
       decoration: InputDecoration(
         labelText: widget.labelText,
-        border: const OutlineInputBorder(),
+        border: const OutlineInputBorder(
+            borderRadius: BorderRadius.all(Radius.circular(10))),
         errorText: _textHasBeenDeleted && widget.controller.text.isEmpty
             ? 'Ingrese ${widget.labelText}'
             : null,
