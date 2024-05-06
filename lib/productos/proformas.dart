@@ -183,120 +183,124 @@ class _ProformaState extends State<CrearProforma> {
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
-        child: Column(
-          children: [
-            Text('Nro. Pedido: $numeroProforma'),
-            CustomTextField(
-              controller: _nombreCliente,
-              labelText: 'Nombre Cliente:',
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Text(
+                'Nro. Pedido: $numeroProforma',
+                style: const TextStyle(fontWeight: FontWeight.w500),
+              ),
+              const SizedBox(
+                height: 20,
+              ),
+              CustomTextField(
+                controller: _nombreCliente,
+                labelText: 'Nombre Cliente:',
+                // Añadir validación si es necesario
+              ),
+              const SizedBox(height: 15),
+              Column(
+                children: List.generate(
+                  widget.productosSeleccionados.length,
+                  (index) {
+                    Producto producto = widget.productosSeleccionados[index];
+                    int cantidad = cantidades[index];
+                    double precioTotal = preciosTotales[index];
 
-              // Añadir validación si es necesario
-            ),
-            const SizedBox(height: 15),
-            Expanded(
-              child: ListView.separated(
-                itemCount: widget.productosSeleccionados.length,
-                separatorBuilder: (context, index) => const SizedBox(
-                  height: 10,
-                ), // Separador personalizado entre elementos
-                itemBuilder: (context, index) {
-                  Producto producto = widget.productosSeleccionados[index];
-                  int cantidad = cantidades[index];
-                  double precioTotal = preciosTotales[index];
-
-                  return ClipRRect(
-                    borderRadius:
-                        BorderRadius.circular(10), // Radio de borde redondeado
-                    child: Container(
-                      color: Colors.grey[
-                          100], // Color de fondo deseado para cada elemento
-                      padding: const EdgeInsets.symmetric(horizontal: 15),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  producto.nombre,
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.bold),
-                                ),
-                                const SizedBox(height: 5),
-                                Text(producto.descripcion),
-                                const SizedBox(height: 5),
-                                Text(
-                                  '\$${precioTotal.toStringAsFixed(2)}',
-                                  style: const TextStyle(
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.bold,
+                    return ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: Container(
+                        color: Colors.grey[100],
+                        padding: const EdgeInsets.symmetric(horizontal: 15),
+                        margin: const EdgeInsets.symmetric(vertical: 5),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    producto.nombre,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
+                                  const SizedBox(height: 5),
+                                  Text(producto.descripcion),
+                                  const SizedBox(height: 5),
+                                  Text(
+                                    '\$${precioTotal.toStringAsFixed(2)}',
+                                    style: const TextStyle(
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(10),
+                                  child: IconButton(
+                                    color: Colors.grey[400],
+                                    iconSize: 35,
+                                    icon: const Icon(
+                                        Icons.remove_circle_outlined),
+                                    onPressed: () {
+                                      if (cantidad > 1) {
+                                        actualizarCantidad(index, cantidad - 1);
+                                      }
+                                    },
+                                  ),
+                                ),
+                                Text('$cantidad'),
+                                IconButton(
+                                  color: Colors.grey[400],
+                                  iconSize: 35,
+                                  icon: const Icon(Icons.add_circle_outlined),
+                                  onPressed: () {
+                                    actualizarCantidad(index, cantidad + 1);
+                                  },
                                 ),
                               ],
                             ),
-                          ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(10),
-                                child: IconButton(
-                                  color: Colors.grey[400],
-                                  iconSize: 35,
-                                  icon:
-                                      const Icon(Icons.remove_circle_outlined),
-                                  onPressed: () {
-                                    if (cantidad > 1) {
-                                      actualizarCantidad(index, cantidad - 1);
-                                    }
-                                  },
-                                ),
-                              ),
-                              Text('$cantidad'),
-                              IconButton(
-                                color: Colors.grey[400],
-                                iconSize: 35,
-                                icon: const Icon(Icons.add_circle_outlined),
-                                onPressed: () {
-                                  actualizarCantidad(index, cantidad + 1);
-                                },
-                              ),
-                            ],
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
-      bottomNavigationBar: BottomAppBar(
-        color: Colors.grey[200],
-        child: Container(
-          padding: const EdgeInsets.all(5.0),
-          child: Row(
-            children: [
-              Text(
-                'Total: \$${precioFinal.toStringAsFixed(2)}',
-                style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Color.fromARGB(255, 99, 99, 99)),
+                    );
+                  },
+                ),
               ),
               const SizedBox(
-                  width: 20), // Agrega un espacio entre los elementos
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: () {
-                    guardarProforma();
-                    // Llama al método para guardar la proforma
-                  },
-                  style: CustomStyles.buttonStyle,
-                  child: const Text('Guardar',
-                      style: TextStyle(color: Colors.white)),
+                height: 20,
+              ),
+              Container(
+                padding: const EdgeInsets.all(5.0),
+                child: Row(
+                  children: [
+                    Text(
+                      'Total: \$${precioFinal.toStringAsFixed(2)}',
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Color.fromARGB(255, 99, 99, 99),
+                      ),
+                    ),
+                    const SizedBox(width: 20),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          guardarProforma();
+                          // Llama al método para guardar la proforma
+                        },
+                        style: CustomStyles.buttonStyle,
+                        child: const Text('Guardar',
+                            style: TextStyle(color: Colors.white)),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],

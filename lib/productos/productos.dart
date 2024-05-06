@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_mentetec/model/model_producto.dart';
+import 'package:flutter_mentetec/productos/detalle_producto.dart';
 import 'package:flutter_mentetec/productos/proformas_list.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -47,15 +48,7 @@ class _ProductosState extends State<Productos> with TickerProviderStateMixin {
       TextEditingController(); // Agrega el controlador de texto para el buscador
 
   void onSearchTextChanged(String searchText) {
-    setState(() {
-      if (searchText.isEmpty) {
-        // Si el texto de búsqueda está vacío, restaura la lista completa
-        productosFiltrados = listaProductos;
-      } else {
-        // Filtra la lista de productos por el texto de búsqueda
-        cargarProductos();
-      }
-    });
+    cargarProductos(searchText: searchText);
   }
 
   @override
@@ -83,8 +76,8 @@ class _ProductosState extends State<Productos> with TickerProviderStateMixin {
     cargarProductos();
   }
 
-  Future<void> cargarProductos() async {
-    valor = _searchController.text;
+  Future<void> cargarProductos({String? searchText}) async {
+    valor = searchText ?? _searchController.text;
 
     try {
       final response = await obtenerTodosProductos(
@@ -398,6 +391,14 @@ class _ProductosState extends State<Productos> with TickerProviderStateMixin {
           borderRadius: BorderRadius.circular(10),
         ),
         child: ListTile(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => DetalleProducto(producto: producto, imageUrl: producto.nombreImagen),
+              ),
+            );
+          },
           title: Text(producto.nombre),
           subtitle: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -468,6 +469,7 @@ class _DialogoCrearProformaState extends State<DialogoCrearProforma> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       insetPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 30),
       child: SizedBox(
         height: MediaQuery.of(context).size.height, // Tamaño de la pantalla

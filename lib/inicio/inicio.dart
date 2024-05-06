@@ -8,7 +8,25 @@ class Inicio extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      
       body: _buildBody(context),
+      bottomNavigationBar: Container(
+        color: const Color(0xFF47B9EA),
+        padding: const EdgeInsets.all(10),
+        child: const Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Copyright © 2024 Mentetec. Todos los derechos reservados.',
+              style: TextStyle(fontSize: 12, color: Colors.white),
+            ),
+            Text(
+              'Desarrollado por Mentetec',
+              style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -62,15 +80,19 @@ class Inicio extends StatelessWidget {
                 children: [
                   Column(
                     children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF47B9EA),
-                          borderRadius: BorderRadius.circular(100),
-                        ),
-                        child: const Icon(
-                          Icons.ac_unit,
-                          size: 125,
-                          color: Colors.white,
+                      ClipOval(
+                        child: Container(
+                          padding: const EdgeInsets.only(
+                              top: 30, right: 10, bottom: 10, left: 10),
+                          width: 130, // Ancho del contenedor circular
+                          height: 130, // Altura del contenedor circular
+                          decoration: BoxDecoration(
+                            color: const Color(
+                                0xFF47B9EA), // Color de fondo del contenedor
+                            borderRadius: BorderRadius.circular(
+                                50), // Radio igual a la mitad del ancho/alto para hacer un círculo
+                          ),
+                          child: Image.asset('assets/carrito.png'),
                         ),
                       ),
                       TextButton(
@@ -87,15 +109,19 @@ class Inicio extends StatelessWidget {
                   ),
                   Column(
                     children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF47B9EA),
-                          borderRadius: BorderRadius.circular(100),
-                        ),
-                        child: const Icon(
-                          Icons.ac_unit,
-                          size: 125,
-                          color: Colors.white,
+                      ClipOval(
+                        child: Container(
+                          padding: const EdgeInsets.only(
+                              top: 10, right: 10, bottom: 20, left: 20),
+                          width: 130, // Ancho del contenedor circular
+                          height: 130, // Altura del contenedor circular
+                          decoration: BoxDecoration(
+                            color: const Color(
+                                0xFF47B9EA), // Color de fondo del contenedor
+                            borderRadius: BorderRadius.circular(
+                                50), // Radio igual a la mitad del ancho/alto para hacer un círculo
+                          ),
+                          child: Image.asset('assets/pedidos.png'),
                         ),
                       ),
                       TextButton(
@@ -109,23 +135,25 @@ class Inicio extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(
-                height: 20,
-              ),
+        
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Column(
                     children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF47B9EA),
-                          borderRadius: BorderRadius.circular(100),
-                        ),
-                        child: const Icon(
-                          Icons.adobe,
-                          size: 125,
-                          color: Colors.white,
+                      ClipOval(
+                        child: Container(
+                          padding: const EdgeInsets.only(
+                              top: 30, right: 10, bottom: 10, left: 10),
+                          width: 130, // Ancho del contenedor circular
+                          height: 130, // Altura del contenedor circular
+                          decoration: BoxDecoration(
+                            color: const Color(
+                                0xFF47B9EA), // Color de fondo del contenedor
+                            borderRadius: BorderRadius.circular(
+                                50), // Radio igual a la mitad del ancho/alto para hacer un círculo
+                          ),
+                          child: Image.asset('assets/carrito.png'),
                         ),
                       ),
                       TextButton(
@@ -139,15 +167,19 @@ class Inicio extends StatelessWidget {
                   ),
                   Column(
                     children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF47B9EA),
-                          borderRadius: BorderRadius.circular(100),
-                        ),
-                        child: const Icon(
-                          Icons.ac_unit,
-                          size: 125,
-                          color: Colors.white,
+                      ClipOval(
+                        child: Container(
+                          padding: const EdgeInsets.only(
+                              top: 30, right: 10, bottom: 10, left: 10),
+                          width: 130, // Ancho del contenedor circular
+                          height: 130, // Altura del contenedor circular
+                          decoration: BoxDecoration(
+                            color: const Color(
+                                0xFF47B9EA), // Color de fondo del contenedor
+                            borderRadius: BorderRadius.circular(
+                                50), // Radio igual a la mitad del ancho/alto para hacer un círculo
+                          ),
+                          child: Image.asset('assets/carrito.png'),
                         ),
                       ),
                       TextButton(
@@ -161,25 +193,7 @@ class Inicio extends StatelessWidget {
             ],
           ),
         ),
-        const SizedBox(
-          height: 20,
-        ),
-        Container(
-          color: const Color(0xFF47B9EA),
-          padding: const EdgeInsets.all(10),
-          child: const Column(
-            children: [
-              Text(
-                'Copyright © 2024 Mentetec. Todos los derechos reservados.',
-                style: TextStyle(fontSize: 12),
-              ),
-              Text(
-                'Desarrollado por Mentetec',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              )
-            ],
-          ),
-        ),
+      
       ],
     );
   }

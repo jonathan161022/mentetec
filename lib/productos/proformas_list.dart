@@ -18,7 +18,7 @@ class _ProformasListState extends State<ProformasList>
     with TickerProviderStateMixin {
   late PageController _pageController;
   late TabController _tabController;
-  String filtro = 'nombre'; // Inicialmente busca por nombre
+  String filtro = 'nombreCliente'; // Inicialmente busca por nombre
   int pageInit = 0;
   int pageEnd = 5;
   late SharedPreferences prefs;
@@ -28,17 +28,47 @@ class _ProformasListState extends State<ProformasList>
   String valor = '';
   List<Proforma> listaProformas = [];
   List<Proforma> proformasFiltrados = [];
-  late Proforma proforma;
-  final TextEditingController _searchController =
+
+  final TextEditingController _searchProforma =
       TextEditingController(); // Agrega el controlador de texto para el buscador
 
-  Future<void> cargarProformas() async {
+  void onSearchTextChanged(String searchText) {
+    cargarProformas(searchText: searchText);
+  }
+
+  void mostrarMenuFiltro(BuildContext context) {
+    showMenu<String>(
+      context: context,
+      position: const RelativeRect.fromLTRB(
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+      ),
+      items: [
+        const PopupMenuItem<String>(
+          value: 'nombreCliente',
+          child: Text('Nombre de Cliente'),
+        ),
+      ],
+    ).then((value) {
+      if (value != null) {
+        setState(() {
+          filtro = value;
+        });
+      }
+    });
+  }
+
+  Future<void> cargarProformas({String? searchText}) async {
+    valor = searchText ?? _searchProforma.text;
+
     try {
       final response = await obtenerTodasProformas(
           0, 5, token, filtro, valor, empresaId, unidadNegocio);
       final List<dynamic> proformaResponse = jsonDecode(response.body)['data'];
 
-      final List<Proforma> proformaLi = [];
+      final List<Proforma> proformas = [];
 
       for (dynamic proformaData in proformaResponse) {
         List<dynamic> proformasData = proformaData['productosVenta'];
@@ -60,7 +90,7 @@ class _ProformasListState extends State<ProformasList>
                   // Agrega las propiedades necesarias según tu clase Producto
                 ))
             .toList();
-        proforma = Proforma(
+        Proforma proforma = Proforma(
           personaId: proformaData['personaId'] ?? 0,
           numero: proformaData['numero'] ?? '',
           nombreCliente: proformaData['nombreCliente'] ?? '',
@@ -70,12 +100,18 @@ class _ProformasListState extends State<ProformasList>
           total: (proformaData['total'] ?? 0.0),
         );
 
-        proformaLi.add(proforma);
+        proformas.add(proforma);
       }
 
       setState(() {
-        listaProformas = proformaLi;
-        proformasFiltrados = proformaLi; // Inicializa la lista filtrada
+        listaProformas = proformas;
+        proformasFiltrados = proformas
+            .where((proforma) =>
+                proforma.nombreCliente
+                    .toLowerCase()
+                    .contains(valor.toLowerCase()) ||
+                proforma.numero.toLowerCase().contains(valor.toLowerCase()))
+            .toList();
       });
     } catch (error) {
       if (kDebugMode) {
@@ -99,8 +135,32 @@ class _ProformasListState extends State<ProformasList>
           ),
         ),
         body: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            Container(
+              margin: const EdgeInsets.all(
+                  15.0), // Ajusta el margen según tus necesidades
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextFormField(
+                      controller: _searchProforma,
+                      onChanged: onSearchTextChanged,
+                      decoration: const InputDecoration(
+                        labelText: 'Buscar',
+                        border: OutlineInputBorder(),
+                        // suffixIcon: IconButton(
+                        //   icon: const Icon(Icons.tune),
+                        //   onPressed: () {
+                        //     // Implementa la lógica para abrir el menú de filtros
+                        //     mostrarMenuFiltro(context);
+                        //   },
+                        // ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
             Expanded(
               child: PageView.builder(
                 controller: _pageController,
@@ -139,6 +199,8 @@ class _ProformasListState extends State<ProformasList>
                           duration: const Duration(milliseconds: 100),
                           curve: Curves.ease,
                         );
+                        _tabController.index =
+                            _pageController.page!.toInt() + 1;
                       }
                     },
                   ),
@@ -155,6 +217,7 @@ class _ProformasListState extends State<ProformasList>
   void dispose() {
     _pageController.dispose();
     _tabController.dispose();
+
     super.dispose();
   }
 
