@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
+import 'package:flutter_mentetec/screens/clientes/clientes_list.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../screens/productos.dart';
@@ -33,8 +33,7 @@ class _InicioState extends State<Inicio> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-      ),
+      appBar: AppBar(),
       body: _buildBody(context),
       bottomNavigationBar: Container(
         color: const Color(0xFF47B9EA),
@@ -180,7 +179,12 @@ class _InicioState extends State<Inicio> {
                         ),
                       ),
                       TextButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const ClientesList()));
+                          },
                           child: const Text('CLIENTES',
                               style: TextStyle(color: Colors.black54)))
                     ],
