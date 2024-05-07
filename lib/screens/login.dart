@@ -6,7 +6,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '../custom/customPasswordField.dart';
 import '../custom/customTextField.dart';
 import 'package:flutter/material.dart';
-import 'styles.dart';
+import '../custom/styles.dart';
 import '../api/login_rest.dart';
 import '../Dashboard/dashboard.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -36,6 +36,8 @@ class _LoginFormState extends State<LoginForm> {
       int idEmpresa = response.idEmpresa;
       String unidadNegocio = response.unidadNegocio;
       String logo = response.logo;
+      String nombre = response.nombre;
+      String apellidos = response.apellidos;
 
       final imagenData = await obtenerImagenes(response.token, response.logo);
       // Convertir la imagen a base64
@@ -50,13 +52,14 @@ class _LoginFormState extends State<LoginForm> {
       prefs.setInt('idEmpresa', idEmpresa);
       prefs.setString('unidadNegocio', unidadNegocio);
       prefs.setString('colorBase', colorBase);
-
+      prefs.setString('nombre', nombre);
+      prefs.setString('apellidos', apellidos);
       prefs.setString('logo', imagenBase64);
 
       // Navega a la pantalla de Dashboard
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => Dashboard()),
+        MaterialPageRoute(builder: (context) => const Dashboard()),
       );
     } catch (e) {
       if (kDebugMode) {

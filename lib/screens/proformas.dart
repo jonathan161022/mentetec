@@ -1,10 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_mentetec/Login/styles.dart';
 import 'package:flutter_mentetec/custom/customSnackBar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../api/proformas_rest.dart';
 import '../custom/customTextField.dart';
+import '../custom/styles.dart';
 import '../model/model_producto.dart';
 
 class CrearProforma extends StatefulWidget {

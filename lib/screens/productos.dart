@@ -3,8 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_mentetec/model/model_producto.dart';
-import 'package:flutter_mentetec/productos/detalle_producto.dart';
-import 'package:flutter_mentetec/productos/proformas_list.dart';
+import 'package:flutter_mentetec/screens/proformas_list.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../api/imagenes_rest.dart';
@@ -347,6 +346,45 @@ class _ProductosState extends State<Productos> with TickerProviderStateMixin {
     });
   }
 
+  void detailProductDialog(BuildContext context, Producto producto) {
+    showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text(
+              producto.nombre,
+              textAlign: TextAlign.center,
+            ),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            elevation: 5,
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (producto.imagen != null) Image(image: producto.imagen!),
+                const SizedBox(
+                  height: 20,
+                ),
+                Text(
+                  'Descripción: ${producto.descripcion}',
+                  style: const TextStyle(fontSize: 20),
+                ),
+                Text('Precio: \$${producto.precioVenta.toStringAsFixed(2)}'),
+                // Agrega más detalles según sea necesario
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cerrar'),
+              ),
+            ],
+          );
+        });
+  }
+
   Widget _buildProductPage(int pageIndex) {
     final startIndex = pageIndex * 5;
     final endIndex = startIndex + 5;
@@ -392,12 +430,7 @@ class _ProductosState extends State<Productos> with TickerProviderStateMixin {
         ),
         child: ListTile(
           onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => DetalleProducto(producto: producto, imageUrl: producto.nombreImagen),
-              ),
-            );
+            detailProductDialog(context, producto);
           },
           title: Text(producto.nombre),
           subtitle: Column(

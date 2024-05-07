@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_mentetec/login/login.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../Inicio/inicio.dart';
-import '../productos/productos.dart';
+import '../screens/login.dart';
+import '../screens/productos.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({super.key});
@@ -87,7 +87,7 @@ class DashboardState extends State<Dashboard> {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.logout_sharp),
+              leading: const Icon(Icons.logout),
               title: const Text('Cerrar Sesión'),
               onTap: () {
                 setState(() {
@@ -96,7 +96,8 @@ class DashboardState extends State<Dashboard> {
                     builder: (BuildContext context) {
                       return AlertDialog(
                         shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10)),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
                         elevation: 5,
                         title: const Text('Alerta'),
                         content: const Column(
@@ -107,20 +108,23 @@ class DashboardState extends State<Dashboard> {
                         ),
                         actions: [
                           TextButton(
-                              onPressed: () {
-                                Navigator.pop(context);
-                              },
-                              child: const Text('Cancelar')),
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: const Text('Cancelar'),
+                          ),
                           TextButton(
-                              onPressed: () {
-                                borrarDatos();
-                                Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => const LoginForm()),
-                                );
-                              },
-                              child: const Text('Aceptar'))
+                            onPressed: () {
+                              borrarDatos();
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const LoginForm(),
+                                ),
+                              );
+                            },
+                            child: const Text('Aceptar'),
+                          ),
                         ],
                       );
                     },

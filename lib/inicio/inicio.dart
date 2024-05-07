@@ -1,14 +1,40 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_mentetec/productos/productos.dart';
-import 'package:flutter_mentetec/productos/proformas_list.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class Inicio extends StatelessWidget {
+import '../screens/productos.dart';
+import '../screens/proformas_list.dart';
+
+class Inicio extends StatefulWidget {
   const Inicio({super.key});
+
+  @override
+  State<Inicio> createState() => _InicioState();
+}
+
+class _InicioState extends State<Inicio> {
+  late SharedPreferences prefs;
+  String nombre = '';
+  String apellidos = '';
+
+  Future<void> obtenerDatosUsuario() async {
+    prefs = await SharedPreferences.getInstance();
+    nombre = prefs.getString('nombre') ?? '';
+    apellidos = prefs.getString('apellidos') ?? '';
+    setState(() {});
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    obtenerDatosUsuario();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      
+      appBar: AppBar(
+      ),
       body: _buildBody(context),
       bottomNavigationBar: Container(
         color: const Color(0xFF47B9EA),
@@ -22,7 +48,8 @@ class Inicio extends StatelessWidget {
             ),
             Text(
               'Desarrollado por Mentetec',
-              style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+              style:
+                  TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
             ),
           ],
         ),
@@ -31,9 +58,6 @@ class Inicio extends StatelessWidget {
   }
 
   Widget _buildBody(BuildContext context) {
-    const nombre = "Jessica";
-    const apellido = "Montalvan";
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -47,11 +71,12 @@ class Inicio extends StatelessWidget {
                 style: TextStyle(fontSize: 24, fontFamily: "fantasy"),
               ),
               const SizedBox(height: 6),
-              const Row(
+              Row(
                 children: [
                   Text(
-                    "$nombre $apellido.",
-                    style: TextStyle(fontSize: 18),
+                    "$nombre$apellidos",
+                    style: const TextStyle(
+                        fontSize: 18, fontWeight: FontWeight.w300),
                   ),
                 ],
               ),
@@ -72,7 +97,7 @@ class Inicio extends StatelessWidget {
           endIndent: 20,
         ),
         Padding(
-          padding: const EdgeInsets.symmetric(vertical: 50),
+          padding: const EdgeInsets.symmetric(vertical: 40),
           child: Column(
             children: [
               Row(
@@ -84,8 +109,8 @@ class Inicio extends StatelessWidget {
                         child: Container(
                           padding: const EdgeInsets.only(
                               top: 30, right: 10, bottom: 10, left: 10),
-                          width: 130, // Ancho del contenedor circular
-                          height: 130, // Altura del contenedor circular
+                          width: 110, // Ancho del contenedor circular
+                          height: 110, // Altura del contenedor circular
                           decoration: BoxDecoration(
                             color: const Color(
                                 0xFF47B9EA), // Color de fondo del contenedor
@@ -113,8 +138,8 @@ class Inicio extends StatelessWidget {
                         child: Container(
                           padding: const EdgeInsets.only(
                               top: 10, right: 10, bottom: 20, left: 20),
-                          width: 130, // Ancho del contenedor circular
-                          height: 130, // Altura del contenedor circular
+                          width: 110, // Ancho del contenedor circular
+                          height: 110, // Altura del contenedor circular
                           decoration: BoxDecoration(
                             color: const Color(
                                 0xFF47B9EA), // Color de fondo del contenedor
@@ -135,7 +160,6 @@ class Inicio extends StatelessWidget {
                   ),
                 ],
               ),
-        
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -143,22 +167,21 @@ class Inicio extends StatelessWidget {
                     children: [
                       ClipOval(
                         child: Container(
-                          padding: const EdgeInsets.only(
-                              top: 30, right: 10, bottom: 10, left: 10),
-                          width: 130, // Ancho del contenedor circular
-                          height: 130, // Altura del contenedor circular
+                          padding: const EdgeInsets.all(20),
+                          width: 110, // Ancho del contenedor circular
+                          height: 110, // Altura del contenedor circular
                           decoration: BoxDecoration(
                             color: const Color(
                                 0xFF47B9EA), // Color de fondo del contenedor
                             borderRadius: BorderRadius.circular(
                                 50), // Radio igual a la mitad del ancho/alto para hacer un círculo
                           ),
-                          child: Image.asset('assets/carrito.png'),
+                          child: Image.asset('assets/grupo.png'),
                         ),
                       ),
                       TextButton(
                           onPressed: () {},
-                          child: const Text('PRODUCTOS',
+                          child: const Text('CLIENTES',
                               style: TextStyle(color: Colors.black54)))
                     ],
                   ),
@@ -171,8 +194,8 @@ class Inicio extends StatelessWidget {
                         child: Container(
                           padding: const EdgeInsets.only(
                               top: 30, right: 10, bottom: 10, left: 10),
-                          width: 130, // Ancho del contenedor circular
-                          height: 130, // Altura del contenedor circular
+                          width: 110, // Ancho del contenedor circular
+                          height: 110, // Altura del contenedor circular
                           decoration: BoxDecoration(
                             color: const Color(
                                 0xFF47B9EA), // Color de fondo del contenedor
@@ -193,7 +216,6 @@ class Inicio extends StatelessWidget {
             ],
           ),
         ),
-      
       ],
     );
   }

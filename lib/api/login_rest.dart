@@ -9,9 +9,13 @@ class LoginResponse {
   final String unidadNegocio;
   final String colorBase;
   final String logo;
+  final String nombre;
+  final String apellidos;
 
   LoginResponse(
-      {required this.logo,
+      {required this.nombre,
+      required this.apellidos,
+      required this.logo,
       required this.token,
       required this.idEmpresa,
       required this.unidadNegocio,
@@ -24,6 +28,8 @@ class LoginResponse {
       unidadNegocio: json['unidadNegocio'],
       colorBase: json['colorBase'],
       logo: json['logo'],
+      nombre: json['nombre'],
+      apellidos: json['apellidos'],
     );
   }
 }
@@ -42,7 +48,7 @@ class LoginRest {
       );
 
       if (response.statusCode == 200) {
-        final jsonResponse = json.decode(response.body);
+        final jsonResponse = json.decode(utf8.decode(response.bodyBytes));
         return LoginResponse.fromJson(jsonResponse);
       } else {
         throw Exception('Error de inicio de sesión: ${response.body}');
