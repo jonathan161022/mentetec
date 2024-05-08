@@ -1,16 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_mentetec/custom/customTextField.dart';
-import 'package:flutter_mentetec/model/model_clientes.dart';
 import 'package:flutter_mentetec/screens/clientes/clientes_list.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../api/clientes_rest.dart';
+import 'package:flutter_mentetec/api/clientes_rest.dart';
+
+import 'package:flutter_mentetec/custom/customTextField.dart';
 import '../../custom/styles.dart';
+import '../../model/model_clientes.dart';
 
 class ClienteCreate extends StatefulWidget {
   final bool isEditing;
   final Persona? cliente;
-  const ClienteCreate({super.key, required this.isEditing, this.cliente});
+
+  const ClienteCreate({
+    super.key,
+    this.cliente,
+    required this.isEditing,
+  });
 
   @override
   State<ClienteCreate> createState() => _ClienteCreateState();
@@ -36,35 +42,6 @@ class _ClienteCreateState extends State<ClienteCreate> {
 
 // Función para crear un cliente
   Future<void> crearCliente() async {
-    if (_nombreCliente.text.isEmpty ||
-        _apellidoCliente.text.isEmpty ||
-        _dniCliente.text.isEmpty ||
-        _direccionCliente.text.isEmpty ||
-        _telefonoCliente.text.isEmpty ||
-        _correoElectronicoCliente.text.isEmpty ||
-        _fechaNacimientoCliente.text.isEmpty ||
-        _paisCliente.text.isEmpty ||
-        _codigoPaisCliente.text.isEmpty) {
-      // Mostrar un mensaje de error indicando que todos los campos son obligatorios
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text('Error'),
-            content: const Text('Todos los campos son obligatorios.'),
-            actions: <Widget>[
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: const Text('Aceptar'),
-              ),
-            ],
-          );
-        },
-      );
-      return; // Salir del método si hay campos vacíos
-    }
     String token =
         (await SharedPreferences.getInstance()).getString('token') ?? '';
     String unidadNegocio =
@@ -72,7 +49,7 @@ class _ClienteCreateState extends State<ClienteCreate> {
             '';
 
     String nombreCliente = _nombreCliente.text;
-    String apillidoCliente = _apellidoCliente.text;
+    String apellidoCliente = _apellidoCliente.text;
     String dniCliente = _dniCliente.text;
     String tipoDocumento = _tipoDocumentoCliente.text;
     String direccionCliente = _direccionCliente.text;
@@ -84,9 +61,9 @@ class _ClienteCreateState extends State<ClienteCreate> {
     String paisCliente = _paisCliente.text;
     String codigoPaisCliente = _codigoPaisCliente.text;
 
-    final proformaData = {
+    Map<String, dynamic> persona = {
       'nombre': nombreCliente,
-      'apellido': apillidoCliente,
+      'apellido': apellidoCliente,
       'dni': dniCliente,
       'tipoDocumento': tipoDocumento,
       'direccion': direccionCliente,
@@ -103,63 +80,38 @@ class _ClienteCreateState extends State<ClienteCreate> {
 
     try {
       // Intentar crear el cliente
-      final response = await crearPersona(proformaData, token);
+      final response = await crearPersona(persona, token);
       // Cliente creado con éxito, cerrar la pantalla de creación de cliente
-      Navigator.of(context).pop();
+      Navigator.push(context,
+          MaterialPageRoute(builder: (context) => const ClientesList()));
+      mostrarDialogGuardarCliente(context);
     } catch (e) {
       // Error al crear el cliente, mostrar un mensaje de error
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text('Error'),
-            content: Text('No se pudo crear el cliente. Error: $e'),
-            actions: <Widget>[
-              TextButton(
-                onPressed: () {
-                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>const ClientesList()));
-                },
-                child: const Text('Aceptar'),
-              ),
-            ],
-          );
-        },
-      );
       // Opcionalmente, puedes registrar el error para fines de depuración
       print('Error al crear el cliente: $e');
     }
   }
 
+  Future<void> mostrarDialogGuardarCliente(BuildContext context) async {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: const Text('Cliente guardado correctamente.'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Aceptar'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Future<void> editarCliente() async {
-    if (_nombreCliente.text.isEmpty ||
-        _apellidoCliente.text.isEmpty ||
-        _dniCliente.text.isEmpty ||
-        _direccionCliente.text.isEmpty ||
-        _telefonoCliente.text.isEmpty ||
-        _correoElectronicoCliente.text.isEmpty ||
-        _fechaNacimientoCliente.text.isEmpty ||
-        _paisCliente.text.isEmpty ||
-        _codigoPaisCliente.text.isEmpty) {
-      // Mostrar un mensaje de error indicando que todos los campos son obligatorios
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text('Error'),
-            content: const Text('Todos los campos son obligatorios.'),
-            actions: <Widget>[
-              TextButton(
-                onPressed: () {
-                   Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>const ClientesList()));
-                },
-                child: const Text('Aceptar'),
-              ),
-            ],
-          );
-        },
-      );
-      return; // Salir del método si hay campos vacíos
-    }
     String token =
         (await SharedPreferences.getInstance()).getString('token') ?? '';
     String unidadNegocio =
@@ -167,7 +119,6 @@ class _ClienteCreateState extends State<ClienteCreate> {
             '';
     final cliente = widget.cliente!;
     final proformaData = {
-      'id': cliente.id,
       'nombre': _nombreCliente.text,
       'apellido': _apellidoCliente.text,
       'dni': _dniCliente.text,
@@ -180,15 +131,18 @@ class _ClienteCreateState extends State<ClienteCreate> {
       'fechaNacimiento': _fechaNacimientoCliente.text,
       'pais': _paisCliente.text,
       'codigoPais': _codigoPaisCliente.text,
-      'unidadNegocio': cliente.unidadNegocio,
+      'unidadNegocio': unidadNegocio,
       'imagen': '',
     };
 
     try {
       // Intentar editar el cliente
       final response = await editarPersona(proformaData, token, cliente.id);
+      print('Response: $response');
       // Cliente editado con éxito, cerrar la pantalla de edición de cliente
-      Navigator.of(context).pop();
+      Navigator.push(context,
+          MaterialPageRoute(builder: (context) => const ClientesList()));
+      mostrarDialogEditarCliente(context);
     } catch (e) {
       // Error al editar el cliente, mostrar un mensaje de error
       showDialog(
@@ -211,6 +165,25 @@ class _ClienteCreateState extends State<ClienteCreate> {
       // Opcionalmente, puedes registrar el error para fines de depuración
       print('Error al editar el cliente: $e');
     }
+  }
+
+  Future<void> mostrarDialogEditarCliente(BuildContext context) async {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: const Text('Cliente editado correctamente.'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Aceptar'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override

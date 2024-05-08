@@ -134,6 +134,7 @@ class _ProformaState extends State<CrearProforma> {
       'empresaId': empresaId,
       'unidadNegocio': unidadNegocio
     };
+
     String? mensajeError = Validaciones.validarNombreCliente(nombreCliente);
     if (mensajeError != null) {
       // Mostrar mensaje de error si el nombre del cliente no es válido

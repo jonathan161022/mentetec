@@ -12,12 +12,10 @@ Future<http.Response> obtenerTodosClientes(
   String token,
   String filtro,
   String valor,
-  int empresaId,
   String unidadNegocio,
 ) async {
   try {
     var requestBody = {
-      'empresaId': empresaId,
       'unidadNegocio': unidadNegocio,
     };
 
@@ -44,7 +42,9 @@ Future<http.Response> crearPersona(
   Map<String, dynamic> cliente,
   String token,
 ) async {
-  print('Holi: $cliente + $token');
+  if (kDebugMode) {
+    print('Datos cliente: $cliente + $token');
+  }
 
   if (kDebugMode) {
     print('$cliente + $token');
@@ -85,6 +85,28 @@ Future<http.Response> editarPersona(
         'token': token,
       },
       body: jsonEncode(cliente),
+    );
+
+    return response;
+  } catch (error) {
+    throw Exception('Error al realizar la solicitud: $error');
+  }
+}
+
+Future<http.Response> buscarPersonaDNI(
+    Map<String, dynamic> cliente, String token, String dni) async {
+  if (kDebugMode) {
+    print('Holi: $token + $dni');
+  }
+
+  try {
+    final response = await http.get(
+      Uri.parse('$ipServer/persona/$dni'),
+      // Cambiar la URL según corresponda
+      headers: {
+        'Content-Type': 'application/json',
+        'token': token,
+      },
     );
 
     return response;

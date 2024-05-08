@@ -48,21 +48,20 @@ class _ClientesListState extends State<ClientesList>
     unidadNegocio = prefs.getString('unidadNegocio') ?? '';
     token = prefs.getString('token') ?? '';
     cargarClientes();
-
   }
 
   Future<void> cargarClientes({String? searchText}) async {
     String valor = searchText ?? _searchController.text;
 
     try {
-      final response = await obtenerTodosClientes(
-          0, 5, token, filtro, valor, empresaId, unidadNegocio);
+      final response =
+          await obtenerTodosClientes(0, 5, token, filtro, valor, unidadNegocio);
       final List<dynamic> clientesResponse = jsonDecode(response.body)['data'];
       final List<Persona> clientes = [];
 
       for (dynamic clienteData in clientesResponse) {
         Persona cliente = Persona(
-          id:clienteData['id'],
+          id: clienteData['id'],
           nombre: clienteData['nombre'] ?? '',
           apellido: clienteData['apellido'] ?? '',
           dni: clienteData['dni'] ?? '',
@@ -252,8 +251,10 @@ class _ClientesListState extends State<ClientesList>
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) =>
-                          ClienteCreate(isEditing: true, cliente: cliente,)));
+                      builder: (context) => ClienteCreate(
+                            isEditing: true,
+                            cliente: cliente,
+                          )));
             },
           ),
         ),

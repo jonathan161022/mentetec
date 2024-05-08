@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'configuracion.dart';
 
@@ -7,7 +8,9 @@ Future<http.Response> crearProforma(
   Map<String, dynamic> proforma,
   String token,
 ) async {
-  print('$proforma + $token');
+  if (kDebugMode) {
+    print('$proforma + $token');
+  }
   try {
     final response = await http.post(
       Uri.parse('$ipServer/proformaGeneral/crear'),
