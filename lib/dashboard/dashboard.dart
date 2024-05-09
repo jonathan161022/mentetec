@@ -40,12 +40,12 @@ class DashboardState extends State<Dashboard> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: SvgPicture.asset(
-          logo.toString(),
-          width: 50,
-          height: 40,
-        ),
-      ),
+          //   title: SvgPicture.asset(
+          //     logo.toString(),
+          //     width: 50,
+          //     height: 40,
+          //   ),
+          ),
       body: IndexedStack(
         index: _currentIndex,
         children: _pages,
@@ -78,7 +78,7 @@ class DashboardState extends State<Dashboard> {
             ),
             ListTile(
               leading: const Icon(Icons.inventory),
-              title: const Text('Productos'),
+              title: const Text('Realizar Pedido'),
               onTap: () {
                 setState(() {
                   _currentIndex = 1;

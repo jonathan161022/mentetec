@@ -18,7 +18,7 @@ class _ProformasListState extends State<ProformasList>
     with TickerProviderStateMixin {
   late PageController _pageController;
   late TabController _tabController;
-  String filtro = 'nombreCliente'; // Inicialmente busca por nombre
+  String filtro = 'dataNameCliente'; // Inicialmente busca por nombre
   int pageInit = 0;
   int pageEnd = 5;
   late SharedPreferences prefs;
@@ -47,8 +47,16 @@ class _ProformasListState extends State<ProformasList>
       ),
       items: [
         const PopupMenuItem<String>(
+          value: 'dataNameCliente',
+          child: Text('Todos los nombres'),
+        ),
+        const PopupMenuItem<String>(
           value: 'nombreCliente',
-          child: Text('Nombre de Cliente'),
+          child: Text('Nombre del Cliente'),
+        ),
+        const PopupMenuItem<String>(
+          value: 'apellidoCliente',
+          child: Text('Apellido del Cliente'),
         ),
       ],
     ).then((value) {
@@ -60,8 +68,9 @@ class _ProformasListState extends State<ProformasList>
     });
   }
 
-  Future<void> cargarProformas({String? searchText}) async {
+  Future<void> cargarProformas({String? searchText, String? filtro}) async {
     valor = searchText ?? _searchProforma.text;
+    filtro = filtro ?? this.filtro;
 
     try {
       final response = await obtenerTodasProformas(
@@ -90,13 +99,20 @@ class _ProformasListState extends State<ProformasList>
                   // Agrega las propiedades necesarias según tu clase Producto
                 ))
             .toList();
+
         Proforma proforma = Proforma(
           personaId: proformaData['personaId'] ?? 0,
           numero: proformaData['numero'] ?? '',
           nombreCliente: proformaData['nombreCliente'] ?? '',
+          apellidoCliente: proformaData['apellidoCliente'] ?? '',
+          dniCliente: proformaData['dniCliente'] ?? '',
           empresaId: proformaData['empresaId'] ?? 0,
           unidadNegocio: proformaData['unidadNegocio'] ?? '',
           productos: productosList,
+          subtotalCero: proformaData['subtotalCero'] ?? 0,
+          subtotal: proformaData['subtotal'] ?? 0,
+          descuento: proformaData['descuento'] ?? 0,
+          iva: proformaData['iva'] ?? 0,
           total: (proformaData['total'] ?? 0.0),
         );
 
@@ -105,13 +121,7 @@ class _ProformasListState extends State<ProformasList>
 
       setState(() {
         listaProformas = proformas;
-        proformasFiltrados = proformas
-            .where((proforma) =>
-                proforma.nombreCliente
-                    .toLowerCase()
-                    .contains(valor.toLowerCase()) ||
-                proforma.numero.toLowerCase().contains(valor.toLowerCase()))
-            .toList();
+        proformasFiltrados = proformas;
       });
     } catch (error) {
       if (kDebugMode) {
@@ -122,6 +132,8 @@ class _ProformasListState extends State<ProformasList>
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
@@ -145,16 +157,18 @@ class _ProformasListState extends State<ProformasList>
                     child: TextFormField(
                       controller: _searchProforma,
                       onChanged: onSearchTextChanged,
-                      decoration: const InputDecoration(
-                        labelText: 'Buscar',
-                        border: OutlineInputBorder(),
-                        // suffixIcon: IconButton(
-                        //   icon: const Icon(Icons.tune),
-                        //   onPressed: () {
-                        //     // Implementa la lógica para abrir el menú de filtros
-                        //     mostrarMenuFiltro(context);
-                        //   },
-                        // ),
+                      decoration: InputDecoration(
+                        label: const Text(
+                          'Buscar por...',
+                        ),
+                        border: const OutlineInputBorder(),
+                        suffixIcon: IconButton(
+                          icon: const Icon(Icons.tune),
+                          onPressed: () {
+                            // Implementa la lógica para abrir el menú de filtros
+                            mostrarMenuFiltro(context);
+                          },
+                        ),
                       ),
                     ),
                   ),
@@ -217,6 +231,7 @@ class _ProformasListState extends State<ProformasList>
   void dispose() {
     _pageController.dispose();
     _tabController.dispose();
+    _searchProforma.dispose();
 
     super.dispose();
   }
@@ -285,7 +300,7 @@ class _ProformasListState extends State<ProformasList>
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(proforma.nombreCliente),
+                Text('${proforma.nombreCliente} ${proforma.apellidoCliente}'),
                 Text('Total: ${proforma.total.toString()}'),
               ],
             ),

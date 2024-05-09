@@ -41,6 +41,9 @@ Future<http.Response> obtenerTodasProformas(
       'empresaId': empresaId,
       'unidadNegocio': unidadNegocio,
     };
+    if (filtro != null && valor != null) {
+      requestBody[filtro] = valor;
+    }
 
     final response = await http.post(
       Uri.parse('$ipServer/proformaGeneral/search'),

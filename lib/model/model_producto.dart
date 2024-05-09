@@ -11,7 +11,8 @@ class Producto {
   ImageProvider? imagen;
   final String nombreImagen;
 
-  bool isChecked; // Nuevo atributo para almacenar el estado del checkbox
+  bool isChecked;
+  bool tieneIva; // Nuevo atributo para almacenar el estado del checkbox
 
   Producto({
     required this.id,
@@ -23,7 +24,8 @@ class Producto {
     required this.precioVenta,
     this.imagen,
     required this.nombreImagen,
-    this.isChecked = false, // Valor predeterminado del estado del checkbox
+    this.isChecked = false,
+    this.tieneIva = false, // Valor predeterminado del estado del checkbox
   });
 
   @override

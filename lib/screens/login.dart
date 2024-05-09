@@ -97,59 +97,64 @@ class _LoginFormState extends State<LoginForm> {
           ],
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(
-            horizontal: 40), // Se corrigió la llave faltante aquí
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text('Iniciar Sesión',
-                style: TextStyle(color: Colors.black54, fontSize: 30)),
-            const SizedBox(height: 16),
-            SvgPicture.asset(
-              'assets/solologo.svg',
-              width: 70,
-              height: 50,
-            ),
-            const SizedBox(height: 25),
-            CustomTextField(
-              controller: _usernameController,
-              labelText: 'Usuario',
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Ingrese su usuario';
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 25),
-            PasswordField(
-              controller: _passwordController,
-              labelText: 'Password',
-              borderColor: Colors.grey.shade600,
-              backgroundColor: Colors.white,
-              onFieldSubmitted: (String value) {
-                setState(() {
-                  password = value;
-                });
-              },
-            ),
-            const SizedBox(
-              height: 40,
-            ),
-            SizedBox(
-              height: 50, // Establece la altura deseada aquí
-              width: 510,
-              child: ElevatedButton(
-                onPressed: _login,
-                style: CustomStyles.buttonStyle,
-                child: const Text(
-                  'INGRESAR',
-                  style: TextStyle(color: Colors.white),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.only(
+            right: 40,
+            top: 70,
+            left: 40,
+          ), // Se corrigió la llave faltante aquí
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text('Iniciar Sesión',
+                  style: TextStyle(color: Colors.black54, fontSize: 30)),
+              const SizedBox(height: 16),
+              SvgPicture.asset(
+                'assets/solologo.svg',
+                width: 70,
+                height: 50,
+              ),
+              const SizedBox(height: 25),
+              CustomTextField(
+                controller: _usernameController,
+                labelText: 'Usuario',
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Ingrese su usuario';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 25),
+              PasswordField(
+                controller: _passwordController,
+                labelText: 'Password',
+                borderColor: Colors.grey.shade600,
+                backgroundColor: Colors.white,
+                onFieldSubmitted: (String value) {
+                  setState(() {
+                    password = value;
+                  });
+                },
+              ),
+              const SizedBox(
+                height: 40,
+              ),
+              SizedBox(
+                height: 50, // Establece la altura deseada aquí
+                width: 510,
+                child: ElevatedButton(
+                  onPressed: _login,
+                  style: CustomStyles.buttonStyle,
+                  child: const Text(
+                    'INGRESAR',
+                    style: TextStyle(color: Colors.white),
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

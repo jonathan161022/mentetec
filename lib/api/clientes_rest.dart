@@ -79,7 +79,8 @@ Future<http.Response> editarPersona(
   }
   try {
     final response = await http.put(
-      Uri.parse('$ipServer/persona/$id'), // Cambiar la URL según corresponda
+      Uri.parse('$ipServer/persona/$id'),
+      // Cambiar la URL según corresponda
       headers: {
         'Content-Type': 'application/json',
         'token': token,
@@ -93,16 +94,16 @@ Future<http.Response> editarPersona(
   }
 }
 
-Future<http.Response> buscarPersonaDNI(
-    Map<String, dynamic> cliente, String token, String dni) async {
+Future<http.Response> buscarPersonaDNI(String token, String dni) async {
   if (kDebugMode) {
     print('Holi: $token + $dni');
   }
 
   try {
     final response = await http.get(
-      Uri.parse('$ipServer/persona/$dni'),
+      Uri.parse('$ipServer/persona/{dni}?dni=$dni'),
       // Cambiar la URL según corresponda
+
       headers: {
         'Content-Type': 'application/json',
         'token': token,

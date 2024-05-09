@@ -1,15 +1,19 @@
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_mentetec/custom/customSnackBar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../api/clientes_rest.dart';
 import '../api/proformas_rest.dart';
 import '../custom/customTextField.dart';
 import '../custom/styles.dart';
 import '../model/model_producto.dart';
+import 'clientes/clientes_create.dart';
 
 class CrearProforma extends StatefulWidget {
   final List<Producto> productosSeleccionados;
-
   const CrearProforma({super.key, required this.productosSeleccionados});
 
   @override
@@ -20,14 +24,19 @@ class _ProformaState extends State<CrearProforma> {
   late List<int> cantidades;
   late List<double> preciosTotales;
   late double precioFinal;
-  int personaId = 1;
+  late int personaId;
   int empresaId = 1;
   late String numeroProforma = '';
+  final TextEditingController _dniCliente = TextEditingController();
   final TextEditingController _nombreCliente = TextEditingController();
+  final TextEditingController _apellidoCliente = TextEditingController();
+
+  bool clienteExistente = false;
 
   @override
   void initState() {
     super.initState();
+
     // Inicialización de las listas de cantidades y precios totales
     cantidades = List<int>.filled(widget.productosSeleccionados.length, 1);
     preciosTotales =
@@ -107,6 +116,8 @@ class _ProformaState extends State<CrearProforma> {
         (await SharedPreferences.getInstance()).getInt('empresaId') ?? 1;
 
     String nombreCliente = _nombreCliente.text;
+    String apellidoCliente = _apellidoCliente.text;
+    String nombreCompleto = '$nombreCliente $apellidoCliente';
 
     // Obtener los datos de cada producto en la lista productosSeleccionados
     List<Map<String, dynamic>> productosVenta = [];
@@ -123,10 +134,15 @@ class _ProformaState extends State<CrearProforma> {
         'unidadNegocio': unidadNegocio,
       });
     }
+    if (!clienteExistente) {
+      personaId = 1;
+      nombreCliente = nombreCompleto;
+    }
 
     final proformaData = {
       'numero': numeroProforma,
       'nombreCliente': nombreCliente,
+      'personaId': personaId,
       'personaRegistroId': 1,
       'personaVendedorId': 1,
       'total': precioFinal,
@@ -157,6 +173,29 @@ class _ProformaState extends State<CrearProforma> {
     }
   }
 
+  Future<void> buscarClienteDNI() async {
+    String token =
+        (await SharedPreferences.getInstance()).getString('token') ?? '';
+
+    try {
+      final response = await buscarPersonaDNI(token, _dniCliente.text);
+      Map<String, dynamic> persona = json.decode(response.body);
+
+      setState(() {
+        clienteExistente = true;
+        personaId = persona['id'];
+        _nombreCliente.text = persona['nombre'];
+        _apellidoCliente.text = persona['apellido'];
+      });
+    } catch (e) {
+      // En caso de error, limpiar los campos
+      setState(() {
+        _nombreCliente.text = '';
+      });
+      print('Error al buscar el cliente: $e');
+    }
+  }
+
   Future<void> mostrarDialogGuardar(BuildContext context) async {
     showDialog(
       context: context,
@@ -178,6 +217,8 @@ class _ProformaState extends State<CrearProforma> {
 
   @override
   Widget build(BuildContext context) {
+    double subtotalConIva = 0.0;
+double subtotalSinIva = 0.0;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Crear Proforma'),
@@ -194,9 +235,66 @@ class _ProformaState extends State<CrearProforma> {
               const SizedBox(
                 height: 20,
               ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text('Registrar Cliente'),
+                  Checkbox(
+                    value: clienteExistente,
+                    onChanged: (value) {
+                      setState(() {
+                        clienteExistente = value ?? false;
+                      });
+                    },
+                  ),
+                  if (clienteExistente)
+                    IconButton(
+                      onPressed: () {
+                        // Lógica para registrar nueva persona
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const ClienteCreate(
+                                      isEditing: false,
+                                      // dni: _dniCliente.text
+                                    )));
+                      },
+                      icon: const Icon(Icons.app_registration),
+                    ),
+                ],
+              ),
+              const SizedBox(
+                height: 5,
+              ),
+              if (clienteExistente)
+                Column(
+                  children: [
+                    CustomTextField(
+                      controller: _dniCliente,
+                      labelText: 'DNI cliente:',
+                      onChanged: (value) {
+                        buscarClienteDNI();
+                      },
+                      // Añadir validación si es necesario
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                  ],
+                ),
               CustomTextField(
                 controller: _nombreCliente,
                 labelText: 'Nombre Cliente:',
+
+                // Añadir validación si es necesario
+              ),
+              const SizedBox(
+                height: 20,
+              ),
+              CustomTextField(
+                controller: _apellidoCliente,
+                labelText: 'Apellido Cliente:',
+
                 // Añadir validación si es necesario
               ),
               const SizedBox(height: 15),
@@ -207,6 +305,11 @@ class _ProformaState extends State<CrearProforma> {
                     Producto producto = widget.productosSeleccionados[index];
                     int cantidad = cantidades[index];
                     double precioTotal = preciosTotales[index];
+                    if (producto.tieneIva) {
+    subtotalConIva += precioTotal; // Sumar al subtotal con IVA
+  } else {
+    subtotalSinIva += precioTotal; // Sumar al subtotal sin IVA
+  }
 
                     return ClipRRect(
                       borderRadius: BorderRadius.circular(10),
@@ -276,6 +379,62 @@ class _ProformaState extends State<CrearProforma> {
               ),
               const SizedBox(
                 height: 20,
+              ),
+              Container(
+                padding: const EdgeInsets.all(20),
+                child: const Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Text('\$ ${subtotalSinIva.toStringAsFixed(2)}'),
+                        SizedBox(
+                          width: 10,
+                        ),
+                        Text('\$ 17')
+                      ],
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                         Text('\$ ${subtotalConIva.toStringAsFixed(2)}'),
+                        SizedBox(
+                          width: 10,
+                        ),
+                        Text('\$ 17')
+                      ],
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Text('DESCUENTO'),
+                        SizedBox(
+                          width: 10,
+                        ),
+                        Text('\$ 17')
+                      ],
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Text('TOTAL'),
+                        SizedBox(
+                          width: 10,
+                        ),
+                        Text('\$ 17')
+                      ],
+                    ),
+                  ],
+                ),
               ),
               Container(
                 padding: const EdgeInsets.all(5.0),

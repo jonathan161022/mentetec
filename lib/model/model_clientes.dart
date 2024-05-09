@@ -32,4 +32,23 @@ class Persona {
     required this.codigoPais,
     this.imagen,
   });
+
+  factory Persona.fromJson(Map<String, dynamic> json) {
+    return Persona(
+      id: json['id'],
+      nombre: json['nombre'],
+      apellido: json['apellido'],
+      dni: json['dni'],
+      tipoDocumento: json['tipo_documento'],
+      direccion: json['direccion'],
+      telefono: json['telefono'],
+      correoElectronico: json['correo_electronico'],
+      estadoCivil: json['estado_civil'],
+      genero: json['genero'],
+      fechaNacimiento: json['fecha_nacimiento'],
+      pais: json['pais'],
+      codigoPais: json['codigo_pais'],
+      unidadNegocio: json['unidadNegocio'],
+    );
+  }
 }

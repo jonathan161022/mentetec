@@ -1,21 +1,22 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_mentetec/screens/clientes/clientes_list.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
-import 'package:flutter_mentetec/api/clientes_rest.dart';
-
-import 'package:flutter_mentetec/custom/customTextField.dart';
+import 'dart:convert';
 import '../../custom/styles.dart';
 import '../../model/model_clientes.dart';
+import 'package:flutter_mentetec/api/clientes_rest.dart';
+import 'package:flutter_mentetec/custom/customTextField.dart';
+import 'package:flutter_mentetec/screens/clientes/clientes_list.dart';
+import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ClienteCreate extends StatefulWidget {
   final bool isEditing;
   final Persona? cliente;
+  // final String? dni;
 
   const ClienteCreate({
     super.key,
     this.cliente,
     required this.isEditing,
+    // this.dni,
   });
 
   @override
@@ -39,6 +40,7 @@ class _ClienteCreateState extends State<ClienteCreate> {
   final TextEditingController _fechaNacimientoCliente = TextEditingController();
   final TextEditingController _paisCliente = TextEditingController();
   final TextEditingController _codigoPaisCliente = TextEditingController();
+  bool clienteExistente = false;
 
 // Función para crear un cliente
   Future<void> crearCliente() async {
@@ -92,6 +94,46 @@ class _ClienteCreateState extends State<ClienteCreate> {
     }
   }
 
+// Método para buscar un cliente por su DNI
+  Future<void> buscarClienteDNI() async {
+    String token =
+        (await SharedPreferences.getInstance()).getString('token') ?? '';
+
+    try {
+      final response = await buscarPersonaDNI(token, _dniCliente.text);
+      Map<String, dynamic> persona = json.decode(response.body);
+
+      setState(() {
+        _nombreCliente.text = persona['nombre'];
+        _apellidoCliente.text = persona['apellido'];
+        _tipoDocumentoCliente.text = persona['tipoDocumento'];
+        _direccionCliente.text = persona['direccion'];
+        _telefonoCliente.text = persona['telefono'];
+        _correoElectronicoCliente.text = persona['correoElectronico'];
+        _estadoCivilCliente.text = persona['estadoCivil'];
+        _generoCliente.text = persona['genero'];
+        _fechaNacimientoCliente.text = persona['fechaNacimiento'];
+        _paisCliente.text = persona['pais'];
+        _codigoPaisCliente.text = persona['codigoPais'];
+        clienteExistente = true;
+      });
+    } catch (e) {
+      // En caso de error, limpiar los campos
+      setState(() {
+        _nombreCliente.text = '';
+        _apellidoCliente.text = '';
+        _direccionCliente.text = '';
+        _telefonoCliente.text = '';
+        _correoElectronicoCliente.text = '';
+        _fechaNacimientoCliente.text = '';
+        _paisCliente.text = '';
+        _codigoPaisCliente.text = '';
+        clienteExistente = false;
+      });
+      print('Error al buscar el cliente: $e');
+    }
+  }
+
   Future<void> mostrarDialogGuardarCliente(BuildContext context) async {
     showDialog(
       context: context,
@@ -117,6 +159,7 @@ class _ClienteCreateState extends State<ClienteCreate> {
     String unidadNegocio =
         (await SharedPreferences.getInstance()).getString('unidadNegocio') ??
             '';
+
     final cliente = widget.cliente!;
     final proformaData = {
       'nombre': _nombreCliente.text,
@@ -189,7 +232,12 @@ class _ClienteCreateState extends State<ClienteCreate> {
   @override
   void initState() {
     super.initState();
-    if (widget.isEditing && widget.cliente != null) {
+
+    // Verificar si se está editando y si hay un cliente existente
+    clienteExistente = widget.isEditing && widget.cliente != null;
+
+    // Si se está editando y hay un cliente existente, inicializar los campos del formulario
+    if (clienteExistente) {
       final cliente = widget.cliente!;
       _nombreCliente.text = cliente.nombre;
       _apellidoCliente.text = cliente.apellido;
@@ -216,6 +264,34 @@ class _ClienteCreateState extends State<ClienteCreate> {
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
         child: Column(
           children: [
+            Container(
+              padding: const EdgeInsets.all(0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: CustomTextField(
+                      controller: _dniCliente,
+                      labelText: 'DNI del Cliente',
+                    ),
+                  ),
+                  IconButton(
+                      onPressed: () {
+                        buscarClienteDNI();
+                      },
+                      icon: const Icon(Icons.search))
+                ],
+              ),
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            const Divider(
+              color: Colors.black,
+              thickness: 0.2,
+            ),
+            const SizedBox(
+              height: 10,
+            ),
             CustomTextField(
               controller: _nombreCliente,
               labelText: 'Nombre del Cliente',
@@ -233,20 +309,6 @@ class _ClienteCreateState extends State<ClienteCreate> {
             CustomTextField(
               controller: _apellidoCliente,
               labelText: 'Apellido del Cliente',
-            ),
-            const SizedBox(
-              height: 10,
-            ),
-            const Divider(
-              color: Colors.black,
-              thickness: 0.2,
-            ),
-            const SizedBox(
-              height: 10,
-            ),
-            CustomTextField(
-              controller: _dniCliente,
-              labelText: 'DNI del Cliente',
             ),
             const SizedBox(
               height: 10,
@@ -442,15 +504,15 @@ class _ClienteCreateState extends State<ClienteCreate> {
               child: Expanded(
                   child: ElevatedButton(
                 onPressed: () {
-                  if (widget.isEditing) {
-                    editarCliente();
+                  if (clienteExistente && widget.isEditing) {
+                    editarCliente(); // Si el cliente existe y se está editando, llamar a editarCliente()
                   } else {
-                    crearCliente();
+                    crearCliente(); // Si el cliente no existe o no se está editando, llamar a crearCliente()
                   }
                 },
                 style: CustomStyles.buttonStyle,
                 child: Text(
-                  widget.isEditing ? 'Editar' : 'Guardar',
+                  (clienteExistente && widget.isEditing) ? 'Editar' : 'Guardar',
                   style: const TextStyle(color: Colors.white),
                 ),
               )),

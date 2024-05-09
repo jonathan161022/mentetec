@@ -1,6 +1,8 @@
 import 'dart:convert';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
 import 'package:flutter_mentetec/model/model_producto.dart';
 import 'package:flutter_mentetec/screens/proformas_list.dart';
@@ -40,8 +42,7 @@ class _ProductosState extends State<Productos> with TickerProviderStateMixin {
   String valor = '';
   List<Producto> productosFiltrados = [];
   List<Opcion> menu = [
-    Opcion(nombre: 'Realizar Pedido'),
-    Opcion(nombre: 'Mis Proformas'),
+    Opcion(nombre: 'Mis Pedidos'),
   ];
   final TextEditingController _searchController =
       TextEditingController(); // Agrega el controlador de texto para el buscador
@@ -97,6 +98,7 @@ class _ProductosState extends State<Productos> with TickerProviderStateMixin {
           imagen: null,
           nombreImagen: productoData['imagen'] ?? '',
           isChecked: false,
+          tieneIva: false,
         );
 
         productos.add(producto);
@@ -183,6 +185,8 @@ class _ProductosState extends State<Productos> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Lista de Productos'),
@@ -195,9 +199,7 @@ class _ProductosState extends State<Productos> with TickerProviderStateMixin {
               );
             }).toList();
           }, onSelected: (value) async {
-            if (value == 'Realizar Pedido') {
-              _mostrarDialogo(context);
-            } else if (value == 'Mis Proformas') {
+            if (value == 'Mis Pedidos') {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const ProformasList()),
@@ -206,79 +208,112 @@ class _ProductosState extends State<Productos> with TickerProviderStateMixin {
           }),
         ],
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+      body: Stack(
         children: [
-          Container(
-            margin: const EdgeInsets.all(
-                15.0), // Ajusta el margen según tus necesidades
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextFormField(
-                    controller: _searchController,
-                    onChanged: onSearchTextChanged,
-                    decoration: InputDecoration(
-                      labelText: 'Buscar por $filtro',
-                      border: const OutlineInputBorder(),
-                      suffixIcon: IconButton(
-                        icon: const Icon(Icons.tune),
-                        onPressed: () {
-                          // Implementa la lógica para abrir el menú de filtros
-                          mostrarMenuFiltro(context);
-                        },
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Container(
+                margin: const EdgeInsets.all(
+                    15.0), // Ajusta el margen según tus necesidades
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextFormField(
+                        controller: _searchController,
+                        onChanged: onSearchTextChanged,
+                        decoration: InputDecoration(
+                          labelText: 'Buscar por $filtro',
+                          border: const OutlineInputBorder(),
+                          suffixIcon: IconButton(
+                            icon: const Icon(Icons.tune),
+                            onPressed: () {
+                              // Implementa la lógica para abrir el menú de filtros
+                              mostrarMenuFiltro(context);
+                            },
+                          ),
+                        ),
                       ),
                     ),
-                  ),
+                  ],
                 ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: PageView.builder(
-              controller: _pageController,
-              onPageChanged: _handlePageViewChanged,
-              itemCount: (productosFiltrados.length / 5).ceil(),
-              itemBuilder: (context, index) {
-                return _buildProductPage(index);
-              },
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.arrow_back_ios),
-                  onPressed: () {
-                    if (_pageController.page!.toInt() > 0) {
-                      _pageController.previousPage(
-                        duration: const Duration(milliseconds: 500),
-                        curve: Curves.ease,
-                      );
-                      _tabController.index = _pageController.page!.toInt() - 1;
-                    }
+              ),
+              Expanded(
+                child: PageView.builder(
+                  controller: _pageController,
+                  onPageChanged: _handlePageViewChanged,
+                  itemCount: (productosFiltrados.length / 5).ceil(),
+                  itemBuilder: (context, index) {
+                    return _buildProductPage(index);
                   },
                 ),
-                TabPageSelector(
-                  controller: _tabController,
+              ),
+              Container(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.arrow_back_ios),
+                      onPressed: () {
+                        if (_pageController.page!.toInt() > 0) {
+                          _pageController.previousPage(
+                            duration: const Duration(milliseconds: 500),
+                            curve: Curves.ease,
+                          );
+                          _tabController.index =
+                              _pageController.page!.toInt() - 1;
+                        }
+                      },
+                    ),
+                    TabPageSelector(
+                      controller: _tabController,
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.arrow_forward_ios),
+                      onPressed: () {
+                        if (_pageController.page!.toInt() <
+                            (listaProductos.length / 5).ceil() - 1) {
+                          _pageController.nextPage(
+                            duration: const Duration(milliseconds: 500),
+                            curve: Curves.ease,
+                          );
+                          _tabController.index =
+                              _pageController.page!.toInt() + 1;
+                        }
+                      },
+                    ),
+                  ],
                 ),
-                IconButton(
-                  icon: const Icon(Icons.arrow_forward_ios),
-                  onPressed: () {
-                    if (_pageController.page!.toInt() <
-                        (listaProductos.length / 5).ceil() - 1) {
-                      _pageController.nextPage(
-                        duration: const Duration(milliseconds: 500),
-                        curve: Curves.ease,
-                      );
-                      _tabController.index = _pageController.page!.toInt() + 1;
-                    }
-                  },
+              ),
+            ],
+          ),
+          Positioned(
+            bottom: 90, // Ajusta la posición vertical según tus necesidades
+            right: 30, // Ajusta la posición horizontal según tus necesidades
+            child: GestureDetector(
+              onTap: () => _mostrarDialogo(context),
+              child: Container(
+                padding: const EdgeInsets.all(10),
+                height: 60,
+                width: 170,
+                decoration: const BoxDecoration(
+                  color: Color(0xFF47B9EA),
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
                 ),
-              ],
-            ),
+                child: const Row(
+                  children: [
+                    Text('Realizar Pedido'),
+                    SizedBox(
+                      width: 10,
+                    ),
+                    Icon(
+                      (Icons.check_circle),
+                    ),
+                  ],
+                ),
+              ),
+            ), // Reemplaza YourWidgetHere por el widget que deseas superponer
           ),
         ],
       ),

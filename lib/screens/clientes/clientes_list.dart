@@ -119,8 +119,10 @@ class _ClientesListState extends State<ClientesList>
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) =>
-                            const ClienteCreate(isEditing: false)));
+                        builder: (context) => const ClienteCreate(
+                              isEditing: false,
+                              // dni: '',
+                            )));
               },
             ),
           ),
@@ -247,6 +249,7 @@ class _ClientesListState extends State<ClientesList>
           trailing: IconButton(
             icon: const Icon(Icons.edit), // Icono para editar
             onPressed: () {
+              print(cliente.id);
               // Acción al hacer clic en el botón de editar
               Navigator.push(
                   context,
